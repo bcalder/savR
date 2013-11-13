@@ -9,7 +9,7 @@
 \usepackage[numbers,square,comma,sort&compress]{natbib}
 \usepackage{soul, color, ulem} % underline, overstrike, highlight 
 \usepackage{amssymb}
-\usepackage[colorlinks=false]{hyperref} % URL's
+\usepackage{hyperref} % URL's
 \usepackage{memhfixc} % should have loaded already, memoir bugs
 
 \setlrmarginsandblock{.75in}{.75in}{1}
@@ -47,6 +47,8 @@ fc <- savR(system.file("extdata", "HiSeq", package="savR"))
 <<show>>=
 fc
 head(correctedIntensities(fc))
+directions(fc)
+reads(fc)
 @
 
 <<plot,eval=F>>=
