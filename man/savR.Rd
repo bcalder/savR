@@ -8,4 +8,8 @@
   Method to build a \link{savProject} object and populate
   it
 }
+\examples{
+fc <- savR(system.file("extdata", "HiSeq", package="savR"))
+fc
+}
 

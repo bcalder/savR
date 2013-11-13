@@ -1,0 +1,86 @@
+\documentclass[letterpaper,11pt,oneside,final,onecolumn,article]{memoir}
+\usepackage{microtype}
+\usepackage{helvet}
+\usepackage{pxfonts}
+\usepackage{eulervm}
+\usepackage{nicefrac}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage[numbers,square,comma,sort&compress]{natbib}
+\usepackage{soul, color, ulem} % underline, overstrike, highlight 
+\usepackage{amssymb}
+\usepackage[colorlinks=false]{hyperref} % URL's
+\usepackage{memhfixc} % should have loaded already, memoir bugs
+
+\setlrmarginsandblock{.75in}{.75in}{1}
+\setulmarginsandblock{.75in}{.75in}{1}
+\checkandfixthelayout
+
+\pagestyle{empty}
+
+\renewcommand{\abstractname}{} % no ``abstract''
+\renewcommand{\bibname}{} % no ``bibliography''
+
+\setsecheadstyle{\Large\sffamily\raggedright}
+\setsubsecheadstyle{\large\sffamily\raggedright}
+\setsubsubsecheadstyle{\normalsize\sffamily\raggedright}
+
+%\VignetteIndexEntry{Using savR}
+
+\begin{document}
+
+\title{Using savR}
+\author{R. Brent Calder}
+
+\maketitle
+
+\section*{Introduction}
+
+<<prepare>>=
+library(savR)
+@
+
+<<intro,cache=T>>=
+fc <- savR(system.file("extdata", "HiSeq", package="savR"))
+@
+
+<<show>>=
+fc
+head(correctedIntensities(fc))
+@
+
+<<plot,eval=F>>=
+pfBoxplot(fc)
+@
+
+<<doPlot,echo=F>>=
+png(filename="pf.png", width=600, height=300, res=72)
+pfBoxplot(fc)
+dev.off()
+@
+
+\begin{figure}[htb]
+\begin{center}
+\includegraphics{pf.png}
+\end{center}
+\caption{Boxplot of total vs. PF clusters}
+\label{fig:pfBoxplot}
+\end{figure}
+
+\section*{Description}
+
+The Illumina Sequence Analysis Viewer (SAV) presents graphs made in real time from data collected
+over the course of basecalling.  This data is now preserved in binary format in the \texttt{InterOp}
+folder of an Illumina sequence run.  More information about this tool and the data are available
+\href{https://duckduckgo.com/?q=sequencing%20analysis%20viewer%20user%27s%20guide}{\textit{online}}.
+
+
+The \texttt{savR} function is passed a path to an Illumina HiSeq or MiSeq run, and returns a
+\texttt{savProject} object, containing the parsed data.  Accessor methods are available for
+information in the \texttt{RunInfo.xml} file as well as the parsed SAV Metrics files.  These include
+corrected intensities, quality metrics, tile metrics, and extraction metrics.  There is a convenience
+function (\texttt{buildReports}), which partially reconstructs the Illumina reports folder
+which was superseded by the SAV.
+
+
+\end{document}

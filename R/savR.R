@@ -54,6 +54,9 @@ setMethod("show", "savProject", function(object) cat(class(object), "instance wi
 #' 
 #' @param object Path to Flowcell data
 #' @export
+#' @examples
+#' fc <- savR(system.file("extdata", "HiSeq", package="savR"))
+#' fc
 setGeneric("savR", function(object) standardGeneric("savR"))
 
 
