@@ -1,15 +1,23 @@
 #' Illumina read
-#' @slot number index of this read in sequencing
-#' @slot cycles number of cycles in this read
-#' @slot index logical representing whether or not this read is an index read
+#' 
+#'@section Slots:
+#'\describe{
+#'\item{\code{number}:}{the index of this read in sequencing}
+#'\item{\code{cycles}:}{number of cycles in this read}
+#'\item{\code{index}:}{logical representing whether or not this read is an index read}
+#'}
 setClass("illuminaRead", 	slots=c(number="integer", cycles="integer",
 		index="logical"))
 
 #' Layout of an Illumina flowcell
-#' @slot lanecount Number of lanes
-#' @slot surfacecount Number of surfaces
-#' @slot swathcount Number of imaging swaths
-#' @slot tilecount Number of tiles per swath
+#' 
+#'@section Slots:
+#'\describe{
+#'\item{\code{lanecount}:}{Number of lanes on the flowcell}
+#'\item{\code{surfacecount}:}{Number of surfaces}
+#'\item{\code{swathcount}:}{Number of imaging swaths}
+#'\item{\code{tilecount}:}{Number of tiles per swath}
+#'}
 setClass("illuminaFlowCellLayout", slots=c(lanecount="integer", 
       surfacecount="integer", swathcount="integer", tilecount="integer"))
 
@@ -17,17 +25,20 @@ setClass("illuminaFlowCellLayout", slots=c(lanecount="integer",
 #' 
 #' Represents a flowcell, metadata and parsed SAV information
 #' 
-#' @slot location Full path to flowcell directory
-#' @slot reads List of \link{illuminaRead}
-#' @slot layout \link{illuminaFlowcellLayout}
-#' @slot runid Run ID
-#' @slot number Run number
-#' @slot flowcell Flowcell ID
-#' @slot instrument Instrument ID
-#' @slot date Run date
-#' @slot cycles Total number of cycles
-#' @slot directions Total number of sequence runs (ends)
-#' @slot parsedData SAV data
+#'@section Slots:
+#'\describe{
+#'\item{\code{location}:}{Full path to flowcell directory}
+#'\item{\code{reads}:}{List of \link{illuminaRead}}
+#'\item{\code{layout}:}{\link{illuminaFlowCellLayout}}
+#'\item{\code{runid}:}{Run ID}
+#'\item{\code{number}:}{Run number}
+#'\item{\code{flowcell}:}{Flowcell ID}
+#'\item{\code{instrument}:}{Instrument ID}
+#'\item{\code{date}:}{Run date}
+#'\item{\code{cycles}:}{Total number of cycles}
+#'\item{\code{directions}:}{Total number of sequence runs (ends)}
+#'\item{\code{parsedData}:}{SAV data}
+#'}
 setClass("savProject", 
 	slots=c(location="character",	reads="list", layout="illuminaFlowCellLayout", 
           runid="character", number="integer", flowcell="character", 

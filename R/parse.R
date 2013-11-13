@@ -6,10 +6,13 @@ NULL
 #'Defines the necessary slots to create parse different binary files using
 #'the same generic parser.
 #'
-#'@slot name vector of column names
-#'@slot type vector of data types of elements
-#'@slot lengths vector of byte lengths for each element
-#'@slot order vector of column names for sorting
+#'@section Slots:
+#'\describe{
+#'\item{\code{name}:}{vector of column names}
+#'\item{\code{type}:}{vector of data types of elements}
+#'\item{\code{lengths}:}{vector of byte lengths for each element}
+#'\item{\code{order}:}{vector of column names for sorting}
+#'}
 setClass("savFormat", slots=c(filename="character", name="character", type="character", lengths="integer", order="character"))
 
 #'Corrected Intensity formatter
@@ -18,10 +21,13 @@ setClass("savFormat", slots=c(filename="character", name="character", type="char
 #'average corrected called intensities (ACGT), number of no-calls,
 #'number of (ACGT) calls, and signal to noise ratio.
 #'
-#'@slot name vector of column names
-#'@slot type vector of data types of elements
-#'@slot lengths vector of byte lengths for each element
-#'@slot order vector of column names for sorting
+#'@section Slots:
+#'\describe{
+#'\item{\code{name}:}{vector of column names}
+#'\item{\code{type}:}{vector of data types of elements}
+#'\item{\code{lengths}:}{vector of byte lengths for each element}
+#'\item{\code{order}:}{vector of column names for sorting}
+#'}
 setClass("savCorrectedIntensityFormat", contains="savFormat", 
          prototype=prototype(filename="CorrectedIntMetricsOut.bin", 
                              name=c("lane", "tile", "cycle", "avg_intensity", paste("avg_cor", c("A", "C", "G", "T"), sep="_"), 
@@ -36,10 +42,13 @@ setClass("savCorrectedIntensityFormat", contains="savFormat",
 #'
 #'Lane, tile, cycle, Q1-Q50 counts
 #'
-#'@slot name vector of column names
-#'@slot type vector of data types of elements
-#'@slot lengths vector of byte lengths for each element
-#'@slot order vector of column names for sorting
+#'@section Slots:
+#'\describe{
+#'\item{\code{name}:}{vector of column names}
+#'\item{\code{type}:}{vector of data types of elements}
+#'\item{\code{lengths}:}{vector of byte lengths for each element}
+#'\item{\code{order}:}{vector of column names for sorting}
+#'}
 setClass("savQualityFormat", contains="savFormat", 
          prototype=prototype(filename="QMetricsOut.bin", 
                              name=c("lane", "tile", "cycle", paste("Q", 1:50, sep="")),
@@ -59,10 +68,13 @@ setClass("savQualityFormat", contains="savFormat",
 #'400 \tab Control lane \cr
 #'}
 #'
-#'@slot name vector of column names
-#'@slot type vector of data types of elements
-#'@slot lengths vector of byte lengths for each element
-#'@slot order vector of column names for sorting
+#'@section Slots:
+#'\describe{
+#'\item{\code{name}:}{vector of column names}
+#'\item{\code{type}:}{vector of data types of elements}
+#'\item{\code{lengths}:}{vector of byte lengths for each element}
+#'\item{\code{order}:}{vector of column names for sorting}
+#'}
 setClass("savTileFormat", contains="savFormat", 
          prototype=prototype(filename="TileMetricsOut.bin", 
                              name=c("lane", "tile", "code", "value"),
@@ -77,10 +89,13 @@ setClass("savTileFormat", contains="savFormat",
 #'have native support for 32-bit unsigned integers and I have not implemented 
 #'a solution.
 #'
-#'@slot name vector of column names
-#'@slot type vector of data types of elements
-#'@slot lengths vector of byte lengths for each element
-#'@slot order vector of column names for sorting
+#'@section Slots:
+#'\describe{
+#'\item{\code{name}:}{vector of column names}
+#'\item{\code{type}:}{vector of data types of elements}
+#'\item{\code{lengths}:}{vector of byte lengths for each element}
+#'\item{\code{order}:}{vector of column names for sorting}
+#'}
 setClass("savExtractionFormat", contains="savFormat", 
          prototype=prototype(filename="ExtractionMetricsOut.bin", 
                              name=c("lane", "tile", "cycle", paste("FWHM", c("A", "C", "G", "T"), sep="_"), paste("int", c("A", "C", "G", "T"), sep="_"), "datestamp", "timestamp"),
