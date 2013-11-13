@@ -217,9 +217,12 @@ setMethod("init", signature("savProject"), function(project) {
     format <- new(x)
     if (file.exists(normalizePath(paste(project@location, "InterOp", format@filename, sep="/")))) {
       data <- parseBin(project, format)
-      if (class(format)[1] != "savTileFormat") {
+      # don't add position data to tiles
+      if (class(format)[1] != "savTileFormat")
         data <- addPosition(data)
-      }
+      # removed unparsed date columns
+      if (class(format)[1] == "savExtractionFormat")
+        data <- data[,-c(12:13)]
       project@parsedData[[x]] <- data
     }
   }
