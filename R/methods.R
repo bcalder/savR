@@ -242,14 +242,14 @@ setMethod("buildReports", signature(project="savProject", path="character"), fun
     dir.create(get(f), showWarnings=F, recursive=T)
   }
   # PF plot
-  png(filename=paste(reports, "/NumClusters By Lane.png", sep=""), width=800, height=400, res=72)
+  Cairo(file=paste(reports, "/NumClusters By Lane.png", sep=""), width=800, height=400, dpi=72, type="png", bg="white")
   pfBoxplot(project)
   dev.off()
   # intensity plots
   path <- normalizePath(paste(reports, "Intensity", sep="/"))
   for (cycle in 1:project@cycles) {
     for (base in c("A", "C", "G", "T")) {
-      png(filename=paste(path, "/Chart_", cycle, "_", tolower(base), ".png", sep=""), width=300, height=800, res=72)
+      Cairo(file=paste(path, "/Chart_", cycle, "_", tolower(base), ".png", sep=""), width=300, height=800, dpi=72, type="png", bg="white")
       plotIntensity(project, cycle, base)
       dev.off()
     }
@@ -257,14 +257,14 @@ setMethod("buildReports", signature(project="savProject", path="character"), fun
   # Q>30 plots
   path <- normalizePath(paste(reports, "NumGT30", sep="/"))
   for (cycle in 1:project@cycles) {
-      png(filename=paste(path, "/Chart_", cycle, ".png", sep=""), width=300, height=800, res=72)
+      Cairo(file=paste(path, "/Chart_", cycle, ".png", sep=""), width=300, height=800, dpi=72, type="png", bg="white")
       plotQGT30(project, cycle)
       dev.off()
   }
   # plot lane quality
   path <- normalizePath(paste(reports, "ByCycle", sep="/"))
   for (lane in 1:project@layout@lanecount) {
-    png(filename=paste(path, "/Qscore_L", lane, ".png", sep=""), width=800, height=400, res=72)
+    Cairo(file=paste(path, "/Qscore_L", lane, ".png", sep=""), width=800, height=400, dpi=72, type="png", bg="white")
     qualityHeatmap(project, lane, 1:project@directions)
     dev.off()
   } 
@@ -273,7 +273,7 @@ setMethod("buildReports", signature(project="savProject", path="character"), fun
   path <- normalizePath(paste(reports, "FWHM", sep="/"))
   for (cycle in 1:project@cycles) {
     for (base in c("A", "C", "G", "T")) {
-      png(filename=paste(path, "/Chart_", cycle, "_", tolower(base), ".png", sep=""), width=300, height=800, res=72)
+      Cairo(file=paste(path, "/Chart_", cycle, "_", tolower(base), ".png", sep=""), width=300, height=800, dpi=72, type="png", bg="white")
       plotFWHM(project, cycle, base)
       dev.off()
     }
