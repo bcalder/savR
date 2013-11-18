@@ -41,7 +41,7 @@ library(savR)
 @
 
 <<intro,cache=T>>=
-fc <- savR(system.file("extdata", "HiSeq", package="savR"))
+fc <- savR(system.file("extdata", "MiSeq", package="savR"))
 @
 
 <<show>>=

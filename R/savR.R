@@ -1,4 +1,6 @@
-#' Illumina read
+#'Illumina read
+#'
+#'Class representation of the features of an Illumina sequencing read.
 #' 
 #'@section Slots:
 #'\describe{
@@ -9,7 +11,9 @@
 setClass("illuminaRead", 	slots=c(number="integer", cycles="integer",
 		index="logical"))
 
-#' Layout of an Illumina flowcell
+#'Layout of an Illumina flowcell
+#'
+#'Class representation of the features of an Illumina flow cell.
 #' 
 #'@section Slots:
 #'\describe{
@@ -21,9 +25,9 @@ setClass("illuminaRead", 	slots=c(number="integer", cycles="integer",
 setClass("illuminaFlowCellLayout", slots=c(lanecount="integer", 
       surfacecount="integer", swathcount="integer", tilecount="integer"))
 
-#' SAV project class
+#'SAV project class
 #' 
-#' Represents a flowcell, metadata and parsed SAV information
+#'Represents a flowcell, metadata and parsed SAV information
 #' 
 #'@section Slots:
 #'\describe{
@@ -46,20 +50,23 @@ setClass("savProject",
           directions="integer", parsedData="list"), 
          prototype=prototype(location="."))
 
+
 setMethod("show", "savProject", function(object) cat(class(object), "instance with", object@layout@lanecount, "lanes,", object@cycles, "total cycles and", object@directions, "sequencing runs." ))
 
-#' Build a SAV project
+#'Build a SAV project
 #' 
-#' Method to build a \link{savProject} object and populate it
+#'Constructor to build a \link{savProject} object and populate it.
 #' 
-#' @param object Path to Flowcell data
-#' @export
-#' @examples
-#' fc <- savR(system.file("extdata", "HiSeq", package="savR"))
-#' fc
+#'@param object Path to Flowcell data
+#'@export
+#'@examples
+#'fc <- savR(system.file("extdata", "MiSeq", package="savR"))
+#'fc
+#'@rdname savR
 setGeneric("savR", function(object) standardGeneric("savR"))
 
-
+#'@rdname savR
+#'@aliases savR,character-method
 setMethod("savR", signature("character"), function(object) {
   retval <- new("savProject", location=normalizePath(object))
   retval@cycles <- 0L
@@ -92,6 +99,8 @@ setMethod("savR", signature("character"), function(object) {
   return(init(retval))
 } )
 
+#'@rdname savR
+#'@aliases savR,missing-method
 setMethod("savR", signature("missing"), function() { savR(".") })
 
 #'Get Flowcell folder location
@@ -99,7 +108,11 @@ setMethod("savR", signature("missing"), function() { savR(".") })
 #'@param project SAV project
 #'@return path to data
 #'@export
+#'@rdname location
 setGeneric("location", function(project) standardGeneric("location"))
+
+#'@rdname location
+#'@aliases location,savProject-method
 setMethod("location", signature(project="savProject"), function(project) project@location)
 
 #'Get reads
@@ -107,7 +120,11 @@ setMethod("location", signature(project="savProject"), function(project) project
 #'@param project SAV project
 #'@return List of \link{illuminaRead}
 #'@export
+#'@rdname reads
 setGeneric("reads", function(project) standardGeneric("reads"))
+
+#'@rdname reads
+#'@aliases reads,savProject-method
 setMethod("reads", signature(project="savProject"), function(project) project@reads)
 
 #'Get flowcell layout
@@ -115,7 +132,11 @@ setMethod("reads", signature(project="savProject"), function(project) project@re
 #'@param project SAV project
 #'@return \link{illuminaFlowCellLayout}
 #'@export
+#'@rdname flowcellLayout
 setGeneric("flowcellLayout", function(project) standardGeneric("flowcellLayout"))
+
+#'@rdname flowcellLayout
+#'@aliases flowcellLayout,savProject-method
 setMethod("flowcellLayout", signature(project="savProject"), function(project) project@layout)
 
 #'Get the Run ID
@@ -123,7 +144,11 @@ setMethod("flowcellLayout", signature(project="savProject"), function(project) p
 #'@param project SAV project
 #'@return parsed run id
 #'@export
+#'@rdname run
 setGeneric("run", function(project) standardGeneric("run"))
+
+#'@rdname run
+#'@aliases run,savProject-method
 setMethod("run", signature(project="savProject"), function(project) project@runid)
 
 #'Get the total number of cycles
@@ -131,7 +156,11 @@ setMethod("run", signature(project="savProject"), function(project) project@runi
 #'@param project SAV project
 #'@return number of cycles in run
 #'@export
+#'@rdname cycles
 setGeneric("cycles", function(project) standardGeneric("cycles"))
+
+#'@rdname cycles
+#'@aliases cycles,savProject-method
 setMethod("cycles", signature(project="savProject"), function(project) project@cycles)
 
 #'Get the number of sequence reads
@@ -140,7 +169,11 @@ setMethod("cycles", signature(project="savProject"), function(project) project@c
 #'@param project SAV project
 #'@return number of reads
 #'@export
+#'@rdname directions
 setGeneric("directions", function(project) standardGeneric("directions"))
+
+#'@rdname directions
+#'@aliases directions,savProject-method
 setMethod("directions", signature(project="savProject"), function(project) project@directions)
 
 #'Get Corrected Intensity data
@@ -148,7 +181,11 @@ setMethod("directions", signature(project="savProject"), function(project) proje
 #'@param project SAV project
 #'@return sorted data.frame of CI data
 #'@export
+#'@rdname correctedIntensities
 setGeneric("correctedIntensities", function(project) standardGeneric("correctedIntensities"))
+
+#'@rdname correctedIntensities
+#'@aliases correctedIntensities,savProject-method
 setMethod("correctedIntensities", signature(project="savProject"), function(project) project@parsedData[["savCorrectedIntensityFormat"]])
 
 #'get Quality Metrics
@@ -156,7 +193,11 @@ setMethod("correctedIntensities", signature(project="savProject"), function(proj
 #'@param project SAV project
 #'@return sorted data.frame quality data
 #'@export
+#'@rdname qualityMetrics
 setGeneric("qualityMetrics", function(project) standardGeneric("qualityMetrics"))
+
+#'@rdname qualityMetrics
+#'@aliases qualityMetrics,savProject-method
 setMethod("qualityMetrics", signature(project="savProject"), function(project) project@parsedData[["savQualityFormat"]])
 
 #'Get Tile Metrics
@@ -164,7 +205,11 @@ setMethod("qualityMetrics", signature(project="savProject"), function(project) p
 #'@param project SAV project
 #'@return sorted data.frame of tile metrics
 #'@export
+#'@rdname tileMetrics
 setGeneric("tileMetrics", function(project) standardGeneric("tileMetrics"))
+
+#'@rdname tileMetrics
+#'@aliases tileMetrics,savProject-method
 setMethod("tileMetrics", signature(project="savProject"), function(project) project@parsedData[["savTileFormat"]])
 
 #'Get Extraction Metrics
@@ -172,6 +217,9 @@ setMethod("tileMetrics", signature(project="savProject"), function(project) proj
 #'@param project SAV project
 #'@return sorted data.frame of Extraction metrics
 #'@export
+#'@rdname extractionMetrics
 setGeneric("extractionMetrics", function(project) standardGeneric("extractionMetrics"))
 
+#'@rdname extractionMetrics
+#'@aliases extractionMetrics,savProject-method
 setMethod("extractionMetrics", signature(project="savProject"), function(project) project@parsedData[["savExtractionFormat"]])

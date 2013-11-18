@@ -10,17 +10,23 @@ subsetSide <- function(data, side) {
   return(data)
 }
 
-#' Plot flowcell intensity by base and cycle
+#'Plot flowcell intensity by base and cycle
 #' 
-#' Draws a representation of a flowcell, showing the scaled corrected intensity values.
+#'Draws a representation of a flowcell, showing the scaled corrected intensity values.
 #' 
-#' @param project A \link{savProject} object
-#' @param cycle integer cycle number
-#' @param base character for nucleotide
-#' @export
+#'@param project A \link{savProject} object
+#'@param cycle integer cycle number
+#'@param base character for nucleotide
+#' 
+#'@export
+#'@docType methods
+#'@rdname plotIntensity
 setGeneric("plotIntensity", function(project, cycle, base) standardGeneric("plotIntensity"))
 
+#'@rdname plotIntensity
+#'@aliases plotIntensity,savProject,integer,character-method
 setMethod("plotIntensity", signature(project="savProject", cycle="integer", base="character"), function(project, cycle=1L, base=c("A", "C", "G", "T")) {
+  x <- y <- NULL
   if (cycle < 0)
     stop ("Cycle out of range")
   data <- project@parsedData[["savCorrectedIntensityFormat"]]
@@ -42,8 +48,14 @@ setMethod("plotIntensity", signature(project="savProject", cycle="integer", base
   grid.arrange(p)
 } )
 
+#'@rdname plotIntensity
+#'@aliases plotIntensity,savProject,missing,missing-method
 setMethod("plotIntensity", signature(project="savProject", cycle="missing", base="missing"), function(project) { plotIntensity(project, 1L, "A")})
+#'@rdname plotIntensity
+#'@aliases plotIntensity,savProject,integer,missing-method
 setMethod("plotIntensity", signature(project="savProject", cycle="integer", base="missing"), function(project, cycle) { plotIntensity(project, cycle, "A")})
+#'@rdname plotIntensity
+#'@aliases plotIntensity,savProject,missing,character-method
 setMethod("plotIntensity", signature(project="savProject", cycle="missing", base="character"), function(project, base) { plotIntensity(project, 1L, base)})
 
 #'Generate FWHM plots
@@ -55,9 +67,14 @@ setMethod("plotIntensity", signature(project="savProject", cycle="missing", base
 #'@param cycle sequence cycle
 #'@param base nucleotide base (ACGT)
 #'@export
+#'@docType methods
+#'@rdname plotFWHM
 setGeneric("plotFWHM", function(project, cycle, base) standardGeneric("plotFWHM"))
 
+#'@rdname plotFWHM
+#'@aliases plotFWHM,savProject,integer,character-method
 setMethod("plotFWHM", signature(project="savProject", cycle="integer", base="character"), function(project, cycle=1L, base=c("A", "C", "G", "T")) {
+  x <- y <- NULL
   if (cycle < 0)
     stop ("Cycle out of range")
   data <- project@parsedData[["savExtractionFormat"]]
@@ -73,17 +90,24 @@ setMethod("plotFWHM", signature(project="savProject", cycle="integer", base="cha
   grid.arrange(p)
 } )
 
+#'@rdname plotFWHM
+#'@aliases plotFWHM,savProject,missing,missing-method
 setMethod("plotFWHM", signature(project="savProject", cycle="missing", base="missing"), function(project) { plotFWHM(project, 1L, "A")})
+#'@rdname plotFWHM
+#'@aliases plotFWHM,savProject,integer,missing-method
 setMethod("plotFWHM", signature(project="savProject", cycle="integer", base="missing"), function(project, cycle) { plotFWHM(project, cycle, "A")})
+#'@rdname plotFWHM
+#'@aliases plotFWHM,savProject,missing,character-method
 setMethod("plotFWHM", signature(project="savProject", cycle="missing", base="character"), function(project, base) { plotFWHM(project, 1L, base)})
 
-#'Get formatted data for Q GT30 plot
-#'
-#'@param data data.frame
-#'@param cycle cycle
-setGeneric("getFormatQGT30", function(data, cycle) standardGeneric("getFormatQGT30"))
+#Get formatted data for Q GT30 plot
+#
+#@param data data.frame
+#@param cycle cycle
+#setGeneric("getFormatQGT30", function(data, cycle) standardGeneric("getFormatQGT30"))
 
-setMethod("getFormatQGT30", signature(data="data.frame", cycle="integer"), function(data, cycle=1L) {
+#setMethod("getFormatQGT30", signature(data="data.frame", cycle="integer"), function(data, cycle=1L) {
+getFormatQGT30 <- function(data, cycle=1L) {
   #side <- match.arg(side)
   #data <- subsetSide(data,side)
   stats <- getFlowcellStats(data)
@@ -97,7 +121,7 @@ setMethod("getFormatQGT30", signature(data="data.frame", cycle="integer"), funct
                  return(sum(x[gte30])/(sum(x[c(lt30, gte30)])+.00001)*100 )
                })
   ))
-} )
+} #)
 
 #'Plot Quality > 30 for a flowcell
 #'
@@ -107,9 +131,14 @@ setMethod("getFormatQGT30", signature(data="data.frame", cycle="integer"), funct
 #'@param project SAV project
 #'@param cycle sequence cycle
 #'@export
+#'@docType methods
+#'@rdname plotQGT30
 setGeneric("plotQGT30", function(project, cycle) standardGeneric("plotQGT30"))
 
+#'@rdname plotQGT30
+#'@aliases plotQGT30,savProject,integer-method
 setMethod("plotQGT30", signature(project="savProject", cycle="integer"), function(project, cycle=1L) {
+  x <- y <- gte30 <- NULL
   if (cycle < 0)
     stop ("Cycle out of range")
   data <- project@parsedData[["savQualityFormat"]]
@@ -123,6 +152,8 @@ setMethod("plotQGT30", signature(project="savProject", cycle="integer"), functio
   grid.arrange(p)
 } )
 
+#'@rdname plotQGT30
+#'@aliases plotQGT30,savProject,missing-method
 setMethod("plotQGT30", signature(project="savProject", cycle="missing"), function(project) { plotQGT30(project, 1L)})
 
 #'PF Boxplot
@@ -131,10 +162,15 @@ setMethod("plotQGT30", signature(project="savProject", cycle="missing"), functio
 #'Illumina pass-filter clusters per tile and lane
 #'
 #'@param project SAV project
-#'@export
+#'@export 
+#'@docType methods
+#'@rdname pfBoxplot
 setGeneric("pfBoxplot", function(project) standardGeneric("pfBoxplot"))
 
+#'@rdname pfBoxplot
+#'@aliases pfBoxplot,savProject-method
 setMethod("pfBoxplot", signature("savProject"), function(project) {
+  lane <- value <- code <- NULL
   data <- project@parsedData[["savTileFormat"]]
   if (is.null(data))
     stop("Tile data not available")
@@ -147,15 +183,16 @@ setMethod("pfBoxplot", signature("savProject"), function(project) {
   grid.arrange(p)
 } )
 
-#'format quality data
-#'
-#'@param data data
-#'@param lane lane
-#'@param cycles cycles
-#'@return formatted data
-setGeneric("qFormat", function(data, lane, cycles) standardGeneric("qFormat"))
+#format quality data
+#
+#@param data data
+#@param lane lane
+#@param cycles cycles
+#@return formatted data
+#setGeneric("qFormat", function(data, lane, cycles) standardGeneric("qFormat"))
 
-setMethod("qFormat", signature(data="data.frame", lane="integer", cycles="integer"), function(data, lane, cycles) {
+#setMethod("qFormat", signature(data="data.frame", lane="integer", cycles="integer"), function(data, lane, cycles) {
+qFormat <- function(data,lane,cycles) {
   data <- data[data$lane==lane & data$cycle %in% cycles, ]
   quals <- paste("Q", 1:50, sep="")
   mat <- melt(data[,c("cycle",quals)], id=c("cycle"), measured=quals)
@@ -164,16 +201,17 @@ setMethod("qFormat", signature(data="data.frame", lane="integer", cycles="intege
   mat[,2] <- as.numeric(gsub("Q", "", mat[,2]))
   colnames(mat) <- c("x", "y", "z")
   return(mat)
-} )
+} #)
 
-#'read number to vector of cycle numbers
-#'
-#'@param project SAV project
-#'@param read read number
-#'@return vector of cycle numbers
-setGeneric("readToCycles", function(project, read) standardGeneric("readToCycles"))
+#read number to vector of cycle numbers
+#
+#@param project SAV project
+#@param read read number
+#@return vector of cycle numbers
+#setGeneric("readToCycles", function(project, read) standardGeneric("readToCycles"))
 
-setMethod("readToCycles", signature(project="savProject", read="integer"), function(project, read) {
+#setMethod("readToCycles", signature(project="savProject", read="integer"), function(project, read) {
+readToCycles <- function(project, read) {
   cycles <- c()
   indexed <- c()
   for (x in project@reads) {
@@ -198,7 +236,7 @@ setMethod("readToCycles", signature(project="savProject", read="integer"), funct
     start <- start + seqreadlen[r]
   }
   return(result[[read]])     
-} )
+} #)
 
 #'Generate a heatmap of qualities
 #'
@@ -206,9 +244,14 @@ setMethod("readToCycles", signature(project="savProject", read="integer"), funct
 #'@param lane lane
 #'@param read vector of sequence reads to include (not including index reads)
 #'@export
+#'@docType methods
+#'@rdname qualityHeatmap
 setGeneric("qualityHeatmap", function(project, lane, read) standardGeneric("qualityHeatmap") )
 
+#'@rdname qualityHeatmap
+#'@aliases qualityHeatmap,savProject,integer,integer-method
 setMethod("qualityHeatmap", signature(project="savProject", lane="integer", read="integer"), function(project, lane, read) {
+  y <- z <- ..level.. <- NULL
   plots <- list()
   for (x in 1:length(read)) {
     mat <- qFormat(data=project@parsedData[["savQualityFormat"]], lane=lane, cycles=readToCycles(project, read))
@@ -228,8 +271,12 @@ setMethod("qualityHeatmap", signature(project="savProject", lane="integer", read
 #'@param project SAV project
 #'@param destination relative location to save reports folder
 #'@export
+#'@docType methods
+#'@rdname buildReports
 setGeneric("buildReports", function(project, destination) standardGeneric("buildReports"))
 
+#'@rdname buildReports
+#'@aliases buildReports,savProject,character-method
 setMethod("buildReports", signature(project="savProject", destination="character"), function(project, destination="Data/reports") {
   path <- location(project)
   if (!file.exists(path))
@@ -283,4 +330,6 @@ setMethod("buildReports", signature(project="savProject", destination="character
   
 } )
 
+#'@rdname buildReports
+#'@aliases buildReports,savProject,missing-method
 setMethod("buildReports", signature(project="savProject", destination="missing"), function(project) { buildReports(project, "Data/reports")})

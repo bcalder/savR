@@ -105,14 +105,15 @@ setClass("savExtractionFormat", contains="savFormat",
 
 setClass("savParser", slots=c(project="savProject", format="savFormat"))
 
-#'Generic binary parser
-#'
-#'@param project SAV project
-#'@param format savFormat subclass to define data types
-#'@return sorted data.frame of parsed data
-setGeneric("parseBin", function(project, format) standardGeneric("parseBin"))
+#Generic binary parser
+#
+#@param project SAV project
+#@param format savFormat subclass to define data types
+#@return sorted data.frame of parsed data
+#setGeneric("parseBin", function(project, format) standardGeneric("parseBin"))
 
-setMethod("parseBin", signature(project="savProject", "savFormat"), function(project, format) {
+#setMethod("parseBin", signature(project="savProject", "savFormat"), function(project, format) {
+parseBin <- function(project, format) {
   path <- normalizePath(paste(project@location, "InterOp", format@filename, sep="/"))
   fh <- file(path, "rb")
   version <- readBin(fh, what="integer", endian="little", size=1, signed=F)
@@ -152,26 +153,27 @@ setMethod("parseBin", signature(project="savProject", "savFormat"), function(pro
 
   data.f <- data.f[do.call(order, as.list(data.f[,format@order])),]
   return(data.f)
-} )
+} #)
 
-validParser <- function(object) {
-  if (length(object@format@name) != length(object@format@type) & length(object@format@type) != length(object@format@size))
-    return("length of format parameters are not equal.")
-  TRUE
-}
+#validParser <- function(object) {
+#  if (length(object@format@name) != length(object@format@type) & length(object@format@type) != length(object@format@size))
+#    return("length of format parameters are not equal.")
+#  TRUE
+#}
 
-setValidity("savParser", validParser)
+#setValidity("savParser", validParser)
 
-#'Get basic flowcell statistics
-#'
-#'used to get flowcell information when data object has
-#'lane, cycle, and tile data.
-#'
-#'@param data.frame of parsed data
-#'@return list of statistics
-setGeneric("getFlowcellStats", function(object) standardGeneric("getFlowcellStats"))
+#Get basic flowcell statistics
+#
+#used to get flowcell information when data object has
+#lane, cycle, and tile data.
+#
+#@param data.frame of parsed data
+#@return list of statistics
+#setGeneric("getFlowcellStats", function(object) standardGeneric("getFlowcellStats"))
 
-setMethod("getFlowcellStats", signature("data.frame"), function(object) {
+#setMethod("getFlowcellStats", signature("data.frame"), function(object) {
+getFlowcellStats <- function(object) {
   retval <- list()
   retval$sides  <- as.numeric(substring(object$tile,1,1))
   retval$swaths <- as.numeric(substring(object$tile,2,2))
@@ -181,19 +183,20 @@ setMethod("getFlowcellStats", signature("data.frame"), function(object) {
   retval$ncycle <- max(object$cycle)
   retval$nlanes <- max(object$lane)
   return(retval)
-} ) 
+} #) 
 
-#'Add position data to parsed data
-#'
-#'Adds and x and a y column to parsed data.  These are used for
-#'laying out tiles in a tile plot.  Values are organized by
-#'lane, then by swath and surface.
-#'
-#'@param data data.frame of parsed data
-#'@return annotated data.frame
-setGeneric("addPosition", function(data) standardGeneric("addPosition"))
+#Add position data to parsed data
+#
+#Adds and x and a y column to parsed data.  These are used for
+#laying out tiles in a tile plot.  Values are organized by
+#lane, then by swath and surface.
+#
+#@param data data.frame of parsed data
+#@return annotated data.frame
+#setGeneric("addPosition", function(data) standardGeneric("addPosition"))
 
-setMethod("addPosition", signature(data="data.frame"), function(data) { # add position data to a data frame
+#setMethod("addPosition", signature(data="data.frame"), function(data) { # add position data to a data frame
+addPosition <- function(data) {
 	##< addPosition
 	### This is an internal method for annotating flowcell data with XY coordinates
 	### used in tile plots of flowcell lanes.
@@ -201,16 +204,17 @@ setMethod("addPosition", signature(data="data.frame"), function(data) { # add po
   return(cbind(data, 
                x=((data$lane-1)*(stats$nswath*stats$nside)+1)+(stats$swaths-1)+((stats$sides-1)*stats$nsides + (stats$sides-1)), 
                y=rep(rep(1:stats$ntiles, stats$nswath*stats$nsides*stats$ncycle), stats$nlanes)))
-} )
+} #)
 
-#'Do parsing
-#'
-#'After everything is configured, initialize parsing of SAV files.
-#'
-#'@param project SAV project
-setGeneric("init", function(project) standardGeneric("init"))
+#Do parsing
+#
+#After everything is configured, initialize parsing of SAV files.
+#
+#@param project SAV project
+#setGeneric("init", function(project) standardGeneric("init"))
 
-setMethod("init", signature("savProject"), function(project) {
+#setMethod("init", signature("savProject"), function(project) {
+init <- function(project) {
   validFormats <- c("savCorrectedIntensityFormat", "savQualityFormat", "savTileFormat", "savExtractionFormat")
   
   for (x in validFormats) {
@@ -227,5 +231,5 @@ setMethod("init", signature("savProject"), function(project) {
     }
   }
   return(project)
-})
+} #)
   
