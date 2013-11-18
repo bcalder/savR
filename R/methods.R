@@ -226,17 +226,17 @@ setMethod("qualityHeatmap", signature(project="savProject", lane="integer", read
 #'was superceded by InterOp.
 #'
 #'@param project SAV project
-#'@param path location to save reports folder
+#'@param destination relative location to save reports folder
 #'@export
-setGeneric("buildReports", function(project, path, destination) standardGeneric("buildReports"))
+setGeneric("buildReports", function(project, destination) standardGeneric("buildReports"))
 
-setMethod("buildReports", signature(project="savProject", path="character", destination="character"), function(project, path=".", destination="Data/reports") {
-  path <- normalizePath(path)
+setMethod("buildReports", signature(project="savProject", destination="character"), function(project, destination="Data/reports") {
+  path <- location(project)
   if (!file.exists(path))
-    stop(cat("Path", path, "does not exist."))
-  reports <- paste(path, "reports", sep="/")
+    stop(cat("Project", path, "does not exist."))
+  reports <- normalizePath(paste(path, destination, sep="/"), mustWork=F)
   if (file.exists(reports))
-    stop(cat("reports folder", reports, "already exists."))
+    stop(cat("Reports folder", reports, "already exists."))
   for (f in c("ByCycle", "ErrorRate", "FWHM", "Intensity", "NumGT30")) {
     assign(f, paste(reports, f, sep="/"))
     dir.create(get(f), showWarnings=F, recursive=T)
@@ -283,6 +283,4 @@ setMethod("buildReports", signature(project="savProject", path="character", dest
   
 } )
 
-setMethod("buildReports", signature(project="savProject", path="missing", destination="character"), function(project, destination) { buildReports(project, ".", destination)})
-setMethod("buildReports", signature(project="savProject", path="character", destination="missing"), function(project, path) { buildReports(project, path, "Data/reports")})
-setMethod("buildReports", signature(project="savProject", path="missing", destination="missing"), function(project) { buildReports(project, ".", "Data/reports")})
+setMethod("buildReports", signature(project="savProject", destination="missing"), function(project) { buildReports(project, "Data/reports")})

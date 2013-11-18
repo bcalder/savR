@@ -92,6 +92,8 @@ setMethod("savR", signature("character"), function(object) {
   return(init(retval))
 } )
 
+setMethod("savR", signature("missing"), function() { savR(".") })
+
 #'Get Flowcell folder location
 #'
 #'@param project SAV project

@@ -4,7 +4,8 @@
 \arguments{
   \item{project}{SAV project}
 
-  \item{path}{location to save reports folder}
+  \item{destination}{relative location to save reports
+  folder}
 }
 \description{
   Generate a folder of images that approximates the format
