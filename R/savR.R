@@ -186,7 +186,7 @@ setGeneric("correctedIntensities", function(project) standardGeneric("correctedI
 
 #'@rdname correctedIntensities
 #'@aliases correctedIntensities,savProject-method
-setMethod("correctedIntensities", signature(project="savProject"), function(project) project@parsedData[["savCorrectedIntensityFormat"]])
+setMethod("correctedIntensities", signature(project="savProject"), function(project) { tmp <- project@parsedData[["savCorrectedIntensityFormat"]]; return(tmp[,!colnames(tmp) %in% c("x", "y")]) })
 
 #'get Quality Metrics
 #'
@@ -198,7 +198,7 @@ setGeneric("qualityMetrics", function(project) standardGeneric("qualityMetrics")
 
 #'@rdname qualityMetrics
 #'@aliases qualityMetrics,savProject-method
-setMethod("qualityMetrics", signature(project="savProject"), function(project) project@parsedData[["savQualityFormat"]])
+setMethod("qualityMetrics", signature(project="savProject"), function(project) { tmp <- project@parsedData[["savQualityFormat"]]; return(tmp[,!colnames(tmp) %in% c("x", "y")]) })
 
 #'Get Tile Metrics
 #'
@@ -222,4 +222,4 @@ setGeneric("extractionMetrics", function(project) standardGeneric("extractionMet
 
 #'@rdname extractionMetrics
 #'@aliases extractionMetrics,savProject-method
-setMethod("extractionMetrics", signature(project="savProject"), function(project) project@parsedData[["savExtractionFormat"]])
+setMethod("extractionMetrics", signature(project="savProject"), function(project) { tmp <- project@parsedData[["savExtractionFormat"]]; return(tmp[,!colnames(tmp) %in% c("x", "y")]) })

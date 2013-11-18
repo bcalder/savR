@@ -82,7 +82,14 @@ The \texttt{savR} function is passed a path to an Illumina HiSeq or MiSeq run, a
 information in the \texttt{RunInfo.xml} file as well as the parsed SAV Metrics files.  These include
 corrected intensities, quality metrics, tile metrics, and extraction metrics.  There is a convenience
 function (\texttt{buildReports}), which partially reconstructs the Illumina reports folder
-which was superseded by the SAV.
+which was superseded by SAV.
+
+<<example2>>=
+head(correctedIntensities(fc))
+head(qualityMetrics(fc))
+head(tileMetrics(fc))
+head(extractionMetrics(fc))
+@
 
 
 \end{document}
