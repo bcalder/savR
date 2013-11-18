@@ -228,9 +228,9 @@ setMethod("qualityHeatmap", signature(project="savProject", lane="integer", read
 #'@param project SAV project
 #'@param path location to save reports folder
 #'@export
-setGeneric("buildReports", function(project, path) standardGeneric("buildReports"))
+setGeneric("buildReports", function(project, path, destination) standardGeneric("buildReports"))
 
-setMethod("buildReports", signature(project="savProject", path="character"), function(project, path=".") {
+setMethod("buildReports", signature(project="savProject", path="character", destination="character"), function(project, path=".", destination="Data/reports") {
   path <- normalizePath(path)
   if (!file.exists(path))
     stop(cat("Path", path, "does not exist."))
@@ -283,4 +283,6 @@ setMethod("buildReports", signature(project="savProject", path="character"), fun
   
 } )
 
-setMethod("buildReports", signature(project="savProject", path="missing"), function(project) { buildReports(project, ".")})
+setMethod("buildReports", signature(project="savProject", path="missing", destination="character"), function(project, destination) { buildReports(project, ".", destination)})
+setMethod("buildReports", signature(project="savProject", path="character", destination="missing"), function(project, path) { buildReports(project, path, "Data/reports")})
+setMethod("buildReports", signature(project="savProject", path="missing", destination="missing"), function(project) { buildReports(project, ".", "Data/reports")})
