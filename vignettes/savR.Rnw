@@ -85,10 +85,10 @@ function (\texttt{buildReports}), which partially reconstructs the Illumina repo
 which was superseded by SAV.
 
 <<example2>>=
-head(correctedIntensities(fc))
-head(qualityMetrics(fc))
-head(tileMetrics(fc))
-head(extractionMetrics(fc))
+head(correctedIntensities(fc), n=1)
+head(qualityMetrics(fc), n=1)
+head(tileMetrics(fc),n=1)
+head(extractionMetrics(fc), n=1)
 @
 
 
