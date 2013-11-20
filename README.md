@@ -9,6 +9,7 @@ Current release version 0.2.0.
 Example
 --------
 
+```
 library(savR)
 example(savR)
-
+```
