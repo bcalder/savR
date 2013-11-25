@@ -9,8 +9,8 @@
 #'LazyLoad: \tab yes \cr
 #'}
 #' 
-#'Parse Illumina Sequence Analysis Viewer files, provide
-#'visualizations and access to data.
+#'Parse Illumina Sequence Analysis Viewer (SAV) 
+#'files, access data, and generate QC plots.
 #' 
 #'@name savR-package
 #'@docType package
