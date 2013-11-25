@@ -1,13 +1,15 @@
 Package: savR
 Type: Package
 Title: Parse and analyze Illumina SAV files
-Version: 0.2.0
+Version: 0.99.0
 Date: 2013-11-18
 Author: R. Brent Calder
 Maintainer: R. Brent Calder <brent.calder@einstein.yu.edu>
 Description: Parse Illumina Sequence Analysis Viewer files, provide
     visualizations and access to data.
 License: AGPL-3
+biocViews: Sequencing,
+    HighThroughputSequencing
 Depends:
     methods,
     Cairo,
@@ -20,4 +22,4 @@ Collate:
     'savR.R'
     'parse.R'
     'methods.R'
-    'savR-project.R'
+    'savR-package.R'

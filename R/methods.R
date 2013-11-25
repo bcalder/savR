@@ -12,7 +12,7 @@ subsetSide <- function(data, side) {
 
 #'Plot flowcell intensity by base and cycle
 #' 
-#'Draws a representation of a flowcell, showing the scaled corrected intensity values.
+#'Draws a representation of a flowcell, showing the average corrected called intensity values.
 #' 
 #'@param project A \link{savProject} object
 #'@param cycle integer cycle number
@@ -104,9 +104,6 @@ setMethod("plotFWHM", signature(project="savProject", cycle="missing", base="cha
 #
 #@param data data.frame
 #@param cycle cycle
-#setGeneric("getFormatQGT30", function(data, cycle) standardGeneric("getFormatQGT30"))
-
-#setMethod("getFormatQGT30", signature(data="data.frame", cycle="integer"), function(data, cycle=1L) {
 getFormatQGT30 <- function(data, cycle=1L) {
   #side <- match.arg(side)
   #data <- subsetSide(data,side)
@@ -121,7 +118,7 @@ getFormatQGT30 <- function(data, cycle=1L) {
                  return(sum(x[gte30])/(sum(x[c(lt30, gte30)])+.00001)*100 )
                })
   ))
-} #)
+}
 
 #'Plot Quality > 30 for a flowcell
 #'
@@ -189,9 +186,6 @@ setMethod("pfBoxplot", signature("savProject"), function(project) {
 #@param lane lane
 #@param cycles cycles
 #@return formatted data
-#setGeneric("qFormat", function(data, lane, cycles) standardGeneric("qFormat"))
-
-#setMethod("qFormat", signature(data="data.frame", lane="integer", cycles="integer"), function(data, lane, cycles) {
 qFormat <- function(data,lane,cycles) {
   data <- data[data$lane==lane & data$cycle %in% cycles, ]
   quals <- paste("Q", 1:50, sep="")
@@ -201,16 +195,13 @@ qFormat <- function(data,lane,cycles) {
   mat[,2] <- as.numeric(gsub("Q", "", mat[,2]))
   colnames(mat) <- c("x", "y", "z")
   return(mat)
-} #)
+}
 
 #read number to vector of cycle numbers
 #
 #@param project SAV project
 #@param read read number
 #@return vector of cycle numbers
-#setGeneric("readToCycles", function(project, read) standardGeneric("readToCycles"))
-
-#setMethod("readToCycles", signature(project="savProject", read="integer"), function(project, read) {
 readToCycles <- function(project, read) {
   cycles <- c()
   indexed <- c()
@@ -236,7 +227,7 @@ readToCycles <- function(project, read) {
     start <- start + seqreadlen[r]
   }
   return(result[[read]])     
-} #)
+}
 
 #'Generate a heatmap of qualities
 #'
@@ -273,6 +264,11 @@ setMethod("qualityHeatmap", signature(project="savProject", lane="integer", read
 #'@export
 #'@docType methods
 #'@rdname buildReports
+#'@examples
+#'\dontrun{
+#'example(savR)
+#'buildReports(fc, "reports")
+#'}
 setGeneric("buildReports", function(project, destination) standardGeneric("buildReports"))
 
 #'@rdname buildReports

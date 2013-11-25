@@ -106,9 +106,12 @@ setMethod("savR", signature("missing"), function() { savR(".") })
 #'Get Flowcell folder location
 #'
 #'@param project SAV project
-#'@return path to data
+#'@return normalized path to Illumina run data.
 #'@export
 #'@rdname location
+#'@examples
+#'example(savR)
+#'location(fc)
 setGeneric("location", function(project) standardGeneric("location"))
 
 #'@rdname location
@@ -118,9 +121,12 @@ setMethod("location", signature(project="savProject"), function(project) project
 #'Get reads
 #'
 #'@param project SAV project
-#'@return List of \link{illuminaRead}
+#'@return List of \link{illuminaRead} objects
 #'@export
 #'@rdname reads
+#'@examples
+#'example(savR)
+#'reads(fc)
 setGeneric("reads", function(project) standardGeneric("reads"))
 
 #'@rdname reads
@@ -130,9 +136,12 @@ setMethod("reads", signature(project="savProject"), function(project) project@re
 #'Get flowcell layout
 #'
 #'@param project SAV project
-#'@return \link{illuminaFlowCellLayout}
+#'@return \link{illuminaFlowCellLayout} object
 #'@export
 #'@rdname flowcellLayout
+#'@examples
+#'example(savR)
+#'flowcellLayout(fc)
 setGeneric("flowcellLayout", function(project) standardGeneric("flowcellLayout"))
 
 #'@rdname flowcellLayout
@@ -142,9 +151,12 @@ setMethod("flowcellLayout", signature(project="savProject"), function(project) p
 #'Get the Run ID
 #'
 #'@param project SAV project
-#'@return parsed run id
+#'@return parsed Illumina run id
 #'@export
 #'@rdname run
+#'@examples
+#'example(savR)
+#'run(fc)
 setGeneric("run", function(project) standardGeneric("run"))
 
 #'@rdname run
@@ -154,9 +166,12 @@ setMethod("run", signature(project="savProject"), function(project) project@runi
 #'Get the total number of cycles
 #'
 #'@param project SAV project
-#'@return number of cycles in run
+#'@return total number of cycles in run, including all sequencing and index reads.
 #'@export
 #'@rdname cycles
+#'@examples
+#'example(savR)
+#'cycles(fc)
 setGeneric("cycles", function(project) standardGeneric("cycles"))
 
 #'@rdname cycles
@@ -165,11 +180,14 @@ setMethod("cycles", signature(project="savProject"), function(project) project@c
 
 #'Get the number of sequence reads
 #'
-#'Returns the number of sequence reads (excluding index reads)
+#'Returns the number of sequencing reads (excluding index reads)
 #'@param project SAV project
 #'@return number of reads
 #'@export
 #'@rdname directions
+#'@examples
+#'example(savR)
+#'directions(fc)
 setGeneric("directions", function(project) standardGeneric("directions"))
 
 #'@rdname directions
@@ -179,9 +197,12 @@ setMethod("directions", signature(project="savProject"), function(project) proje
 #'Get Corrected Intensity data
 #'
 #'@param project SAV project
-#'@return sorted data.frame of CI data
+#'@return sorted data.frame of CI data.
 #'@export
 #'@rdname correctedIntensities
+#'@examples
+#'example(savR)
+#'colnames(correctedIntensities(fc))
 setGeneric("correctedIntensities", function(project) standardGeneric("correctedIntensities"))
 
 #'@rdname correctedIntensities
@@ -191,9 +212,12 @@ setMethod("correctedIntensities", signature(project="savProject"), function(proj
 #'get Quality Metrics
 #'
 #'@param project SAV project
-#'@return sorted data.frame quality data
+#'@return sorted data.frame of quality data
 #'@export
 #'@rdname qualityMetrics
+#'@examples
+#'example(savR)
+#'colnames(qualityMetrics(fc))
 setGeneric("qualityMetrics", function(project) standardGeneric("qualityMetrics"))
 
 #'@rdname qualityMetrics
@@ -202,10 +226,32 @@ setMethod("qualityMetrics", signature(project="savProject"), function(project) {
 
 #'Get Tile Metrics
 #'
+#'Returns the Tile Metrics SAV data.  
+#'
+#'Metrics for each tile are encoded in the following format:
+#'\tabular{ll}{
+#'cluster density: \tab 100 \cr
+#'PF cluster density: \tab 101 \cr
+#'number of clusters: \tab 102 \cr
+#'number of PF clusters: \tab 103 \cr
+#'phasing for read N: \tab (200 + (N - 1) * 2) \cr
+#'prephasing for read N: \tab (201 + (N - 1) * 2) \cr
+#'percent aligned for read N: \tab (300 + N - 1) \cr
+#'control lane: \tab 400 \cr
+#'}
+#' 
+#'@references
+#'Codes for Tile Metrics were obtained from the Python Illuminate package: \cr
+#'\url{https://bitbucket.org/invitae/illuminate}
+#' 
+#'
 #'@param project SAV project
 #'@return sorted data.frame of tile metrics
 #'@export
 #'@rdname tileMetrics
+#'@examples
+#'example(savR)
+#'colnames(tileMetrics(fc))
 setGeneric("tileMetrics", function(project) standardGeneric("tileMetrics"))
 
 #'@rdname tileMetrics
@@ -218,6 +264,9 @@ setMethod("tileMetrics", signature(project="savProject"), function(project) proj
 #'@return sorted data.frame of Extraction metrics
 #'@export
 #'@rdname extractionMetrics
+#'@examples
+#'example(savR)
+#'colnames(extractionMetrics(fc))
 setGeneric("extractionMetrics", function(project) standardGeneric("extractionMetrics"))
 
 #'@rdname extractionMetrics

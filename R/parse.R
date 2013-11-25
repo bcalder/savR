@@ -1,6 +1,8 @@
 #' @include savR.R
 NULL
 
+# Primarily private methods for parsing and formatting InterOp data.
+
 #'Base class for formatters
 #'
 #'Defines the necessary slots to create parse different binary files using
@@ -12,8 +14,9 @@ NULL
 #'\item{\code{type}:}{vector of data types of elements}
 #'\item{\code{lengths}:}{vector of byte lengths for each element}
 #'\item{\code{order}:}{vector of column names for sorting}
+#'\item{\code{version}:}{integer version number}
 #'}
-setClass("savFormat", slots=c(filename="character", name="character", type="character", lengths="integer", order="character"))
+setClass("savFormat", slots=c(filename="character", name="character", type="character", lengths="integer", order="character", version="integer"))
 
 #'Corrected Intensity formatter
 #'
@@ -27,6 +30,7 @@ setClass("savFormat", slots=c(filename="character", name="character", type="char
 #'\item{\code{type}:}{vector of data types of elements}
 #'\item{\code{lengths}:}{vector of byte lengths for each element}
 #'\item{\code{order}:}{vector of column names for sorting}
+#'\item{\code{version}:}{integer version number}
 #'}
 setClass("savCorrectedIntensityFormat", contains="savFormat", 
          prototype=prototype(filename="CorrectedIntMetricsOut.bin", 
@@ -36,7 +40,8 @@ setClass("savCorrectedIntensityFormat", contains="savFormat",
                                     "sig_noise"),
                              type=c(rep("integer", 17), "numeric"),
                              lengths=c(rep(2L,12), rep(4L, 6)),
-                             order=c("lane", "cycle", "tile")))
+                             order=c("lane", "cycle", "tile"),
+                             version=2L))
 
 #'Quality Metrics formatter
 #'
@@ -48,13 +53,15 @@ setClass("savCorrectedIntensityFormat", contains="savFormat",
 #'\item{\code{type}:}{vector of data types of elements}
 #'\item{\code{lengths}:}{vector of byte lengths for each element}
 #'\item{\code{order}:}{vector of column names for sorting}
+#'\item{\code{version}:}{integer version number}
 #'}
 setClass("savQualityFormat", contains="savFormat", 
          prototype=prototype(filename="QMetricsOut.bin", 
                              name=c("lane", "tile", "cycle", paste("Q", 1:50, sep="")),
                              type=c(rep("integer", 53)),
                              lengths=c(rep(2L, 3), rep(4L, 50) ),
-                             order=c("lane", "cycle", "tile")))
+                             order=c("lane", "cycle", "tile"),
+                             version=4L))
 
 #'Tile Metrics formatter
 #'
@@ -74,13 +81,15 @@ setClass("savQualityFormat", contains="savFormat",
 #'\item{\code{type}:}{vector of data types of elements}
 #'\item{\code{lengths}:}{vector of byte lengths for each element}
 #'\item{\code{order}:}{vector of column names for sorting}
+#'\item{\code{version}:}{integer version number}
 #'}
 setClass("savTileFormat", contains="savFormat", 
          prototype=prototype(filename="TileMetricsOut.bin", 
                              name=c("lane", "tile", "code", "value"),
                              type=c(rep("integer", 3), "numeric"),
                              lengths=c(rep(2L, 3), 4L),
-                             order=c("lane", "code", "tile")))
+                             order=c("lane", "code", "tile"),
+                             version=2L))
 
 #'Extraction Metrics formatter
 #'
@@ -95,13 +104,15 @@ setClass("savTileFormat", contains="savFormat",
 #'\item{\code{type}:}{vector of data types of elements}
 #'\item{\code{lengths}:}{vector of byte lengths for each element}
 #'\item{\code{order}:}{vector of column names for sorting}
+#'\item{\code{version}:}{integer version number}
 #'}
 setClass("savExtractionFormat", contains="savFormat", 
          prototype=prototype(filename="ExtractionMetricsOut.bin", 
                              name=c("lane", "tile", "cycle", paste("FWHM", c("A", "C", "G", "T"), sep="_"), paste("int", c("A", "C", "G", "T"), sep="_"), "datestamp", "timestamp"),
                              type=c(rep("integer", 3), rep("numeric", 4), rep("integer", 6)),
                              lengths=c(rep(2L, 3), rep(4L,4), rep(2L,4), rep(4L,2) ),
-                             order=c("lane", "cycle", "tile")))
+                             order=c("lane", "cycle", "tile"),
+                             version=2L))
 
 setClass("savParser", slots=c(project="savProject", format="savFormat"))
 
@@ -116,10 +127,15 @@ setClass("savParser", slots=c(project="savProject", format="savFormat"))
 parseBin <- function(project, format) {
   path <- normalizePath(paste(project@location, "InterOp", format@filename, sep="/"))
   fh <- file(path, "rb")
-  version <- readBin(fh, what="integer", endian="little", size=1, signed=F)
+  vers <- readBin(fh, what="integer", endian="little", size=1, signed=F)
+  if (vers != format@version) {
+    # TODO: check for other parsers
+    close(fh)
+    stop(paste("savR currently only supports version", format@version, "of this SAV file.", format@filename, "is reported as version", vers, "."))
+  }
   reclen <- readBin(fh, what="integer", endian="little", size=1, signed=F)
   if (reclen != sum(format@lengths))
-    stop(cat("file's declared record size (", reclen, ") does not equal formats declared size (", sum(format@lengths), ")"))
+    stop(paste("file's declared record size (", reclen, ") does not equal formats declared size (", sum(format@lengths), ")"))
   readlen <- 0
   for (x in project@reads) {
     readlen <- readlen + x@cycles
