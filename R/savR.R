@@ -51,7 +51,10 @@ setClass("savProject",
          prototype=prototype(location="."))
 
 
-setMethod("show", "savProject", function(object) cat(class(object), "instance with", object@layout@lanecount, "lanes,", object@cycles, "total cycles and", object@directions, "sequencing runs." ))
+setMethod("show", "savProject", function(object) cat(class(object), "instance with", 
+                                                     object@layout@lanecount, "lanes,", 
+                                                     object@cycles, "total cycles and", 
+                                                     object@directions, "sequencing runs." ))
 
 #'Build a SAV project
 #' 
@@ -62,6 +65,7 @@ setMethod("show", "savProject", function(object) cat(class(object), "instance wi
 #'@examples
 #'fc <- savR(system.file("extdata", "MiSeq", package="savR"))
 #'fc
+#'
 #'@rdname savR
 setGeneric("savR", function(object) standardGeneric("savR"))
 

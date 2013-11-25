@@ -231,9 +231,11 @@ readToCycles <- function(project, read) {
 
 #'Generate a heatmap of qualities
 #'
+#'Plots a heatmap of quality vs cycle for a given lane for 1 or more sequence reads.  Read qualities include sequence + index.
+#'
 #'@param project SAV project
-#'@param lane lane
-#'@param read vector of sequence reads to include (not including index reads)
+#'@param lane integer lane specification
+#'@param read integer vector of sequence reads to include (not including index reads)
 #'@export
 #'@docType methods
 #'@rdname qualityHeatmap
@@ -244,6 +246,8 @@ setGeneric("qualityHeatmap", function(project, lane, read) standardGeneric("qual
 setMethod("qualityHeatmap", signature(project="savProject", lane="integer", read="integer"), function(project, lane, read) {
   y <- z <- ..level.. <- NULL
   plots <- list()
+  if (!all( read %in% 1:directions(project)))
+    stop(paste("There are only", directions(project), "sequence read(s) on this flowcell, check read specification."))
   for (x in 1:length(read)) {
     mat <- qFormat(data=project@parsedData[["savQualityFormat"]], lane=lane, cycles=readToCycles(project, read))
     plots[[x]] <- ggplot(mat, aes(x=x, y=y, z=z)) + 
@@ -254,13 +258,17 @@ setMethod("qualityHeatmap", signature(project="savProject", lane="integer", read
   do.call(grid.arrange, c(plots, ncol=length(plots)))
 } )
 
+#'@rdname qualityHeatmap
+#'@aliases qualityHeatmap,savProject,numeric,numeric-method
+setMethod("qualityHeatmap", signature(project="savProject", lane="numeric", read="numeric"), function(project, lane, read) { qualityHeatmap(project, as.integer(lane), as.integer(read))})
+
 #'Generate Illumina reports folder
 #'
 #'Generate a folder of images that approximates the format of the folder that 
 #'was superceded by InterOp.
 #'
 #'@param project SAV project
-#'@param destination relative location to save reports folder
+#'@param destination path to save reports folder
 #'@export
 #'@docType methods
 #'@rdname buildReports
@@ -273,13 +281,13 @@ setGeneric("buildReports", function(project, destination) standardGeneric("build
 
 #'@rdname buildReports
 #'@aliases buildReports,savProject,character-method
-setMethod("buildReports", signature(project="savProject", destination="character"), function(project, destination="Data/reports") {
+setMethod("buildReports", signature(project="savProject", destination="character"), function(project, destination=NULL) {
   path <- location(project)
   if (!file.exists(path))
-    stop(cat("Project", path, "does not exist."))
-  reports <- normalizePath(paste(path, destination, sep="/"), mustWork=F)
+    stop(paste("Project", path, "does not exist."))
+  reports <- normalizePath(destination, mustWork=F)
   if (file.exists(reports))
-    stop(cat("Reports folder", reports, "already exists."))
+    stop(paste("Reports folder", reports, "already exists."))
   for (f in c("ByCycle", "ErrorRate", "FWHM", "Intensity", "NumGT30")) {
     assign(f, paste(reports, f, sep="/"))
     dir.create(get(f), showWarnings=F, recursive=T)
@@ -320,12 +328,10 @@ setMethod("buildReports", signature(project="savProject", destination="character
       plotFWHM(project, cycle, base)
       dev.off()
     }
-  }
-  
-  
+  }  
   
 } )
 
 #'@rdname buildReports
 #'@aliases buildReports,savProject,missing-method
-setMethod("buildReports", signature(project="savProject", destination="missing"), function(project) { buildReports(project, "Data/reports")})
+setMethod("buildReports", signature(project="savProject", destination="missing"), function(project) { buildReports(project, "reports")})
