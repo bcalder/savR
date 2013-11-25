@@ -87,7 +87,7 @@ which was superseded by SAV.
 <<example2>>=
 head(correctedIntensities(fc), n=1)
 head(qualityMetrics(fc), n=1)
-head(tileMetrics(fc),n=1)
+head(tileMetrics(fc), n=1)
 head(extractionMetrics(fc), n=1)
 @
 
