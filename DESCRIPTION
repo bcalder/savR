@@ -5,8 +5,7 @@ Version: 0.99.0
 Date: 2013-11-18
 Author: R. Brent Calder
 Maintainer: R. Brent Calder <brent.calder@einstein.yu.edu>
-Description: Parse Illumina Sequence Analysis Viewer files, provide
-    visualizations and access to data.
+Description: Parse Illumina Sequence Analysis Viewer files
 License: AGPL-3
 biocViews: Sequencing,
     HighThroughputSequencing
