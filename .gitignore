@@ -3,3 +3,4 @@
 .RData
 man
 savR.Rproj
+*.DS_Store
