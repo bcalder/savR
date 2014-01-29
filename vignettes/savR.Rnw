@@ -178,7 +178,7 @@ head(tileMetrics(fc), n=4)
 \subsection*{Extraction Metrics}
 
 The extraction metrics (\texttt{ExtractionMetricsOut.bin}) file contains per-lane/cycle/tile information about per-base FWHM
-(full width pixel size of clusters at half maximum), 90th \%-ile intensity of signal intensity, and a datestamp.
+(full width pixel size of clusters at half maximum) and 90th \%-ile intensity of signal intensity.
 
 <<example2>>=
 head(extractionMetrics(fc), n=1)
