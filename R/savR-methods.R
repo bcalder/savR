@@ -1,5 +1,43 @@
-#' @include parse.R
+# @include savR.R
 NULL
+
+#'@rdname savR
+#'@aliases savR,character-method
+setMethod("savR", signature("character"), function(object) {
+  retval <- new("savProject", location=normalizePath(object))
+  retval@cycles <- 0L
+  retval@directions <- 0L
+  ri <- normalizePath(paste(object, "RunInfo.xml", sep="/"))
+  runinfo <- XML::xmlInternalTreeParse(ri)
+  retval@runid <- XML::xmlAttrs(XML::xpathApply(runinfo, "/RunInfo/Run")[[1]])["Id"]
+  retval@number <- as.integer(XML::xmlAttrs(xpathApply(runinfo, "/RunInfo/Run")[[1]])["Number"])
+  retval@flowcell <- XML::xmlValue(XML::xpathApply(runinfo, "/RunInfo/Run/Flowcell")[[1]])
+  retval@instrument <- XML::xmlValue(XML::xpathApply(runinfo, "/RunInfo/Run/Instrument")[[1]])
+  retval@date <- XML::xmlValue(XML::xpathApply(runinfo, "/RunInfo/Run/Date")[[1]])
+  reads <- c()
+  for (x in XML::xpathApply(runinfo, "/RunInfo/Run/Reads/Read")) {
+    index <- XML::xmlAttrs(x)["IsIndexedRead"]
+    index <- if(index=="Y") T else F
+    read <- new("illuminaRead", number=as.integer(XML::xmlAttrs(x)["Number"]), 
+                cycles=as.integer(XML::xmlAttrs(x)["NumCycles"]),
+                index=index)
+    reads <- c(reads, read)
+    retval@cycles <- retval@cycles + read@cycles
+    if (!read@index)
+      retval@directions <- retval@directions + 1L
+  } 
+  retval@reads <- reads
+  layout <- XML::xpathApply(runinfo, "/RunInfo/Run/FlowcellLayout")[[1]]
+  retval@layout <- new("illuminaFlowCellLayout", lanecount=as.integer(XML::xmlAttrs(layout)["LaneCount"]),
+                       surfacecount=as.integer(XML::xmlAttrs(layout)["SurfaceCount"]),
+                       swathcount=as.integer(XML::xmlAttrs(layout)["SwathCount"]),
+                       tilecount=as.integer(XML::xmlAttrs(layout)["TileCount"]) )
+  return(init(retval))
+} )
+
+#'@rdname savR
+#'@aliases savR,missing-method
+setMethod("savR", signature("missing"), function() { savR(".") })
 
 subsetSide <- function(data, side) {
   if (side=="top") {
@@ -10,18 +48,7 @@ subsetSide <- function(data, side) {
   return(data)
 }
 
-#'Plot flowcell intensity by base and cycle
-#' 
-#'Draws a representation of a flowcell, showing the average corrected called intensity values.
-#' 
-#'@param project A \link{savProject} object
-#'@param cycle integer cycle number
-#'@param base character for nucleotide
-#' 
-#'@export
-#'@docType methods
-#'@rdname plotIntensity
-setGeneric("plotIntensity", function(project, cycle, base) standardGeneric("plotIntensity"))
+
 
 #'@rdname plotIntensity
 #'@aliases plotIntensity,savProject,integer,character-method
@@ -42,10 +69,10 @@ setMethod("plotIntensity", signature(project="savProject", cycle="integer", base
   base <- match.arg(base)
   
   p <- qplot(factor(x),y,fill=get(val[base]), data=data, geom="tile", position="dodge", main = paste("Intensity: ", base, ", Cycle ", cycle, sep="")) + 
-  theme_bw() + theme(legend.position = "bottom") + scale_fill_continuous(guide = guide_colorbar(title=val, barwidth=10), limits=c(0,maxInt) ) + 
-  facet_grid(~lane, space="free", scales="free") + 
-  xlab("") + ylab("") + scale_x_discrete(labels="") 
-  grid.arrange(p)
+    theme_bw() + theme(legend.position = "bottom") + scale_fill_continuous(guide = guide_colorbar(title=val, barwidth=10), limits=c(0,maxInt) ) + 
+    facet_grid(~lane, space="free", scales="free") + 
+    xlab("") + ylab("") + scale_x_discrete(labels="") 
+  gridExtra::grid.arrange(p)
 } )
 
 #'@rdname plotIntensity
@@ -58,18 +85,7 @@ setMethod("plotIntensity", signature(project="savProject", cycle="integer", base
 #'@aliases plotIntensity,savProject,missing,character-method
 setMethod("plotIntensity", signature(project="savProject", cycle="missing", base="character"), function(project, base) { plotIntensity(project, 1L, base)})
 
-#'Generate FWHM plots
-#'
-#'Plots the average full width of clusters at half maximum (FWHM) of each tile
-#'for a given cycle and base.
-#'
-#'@param project SAV project
-#'@param cycle sequence cycle
-#'@param base nucleotide base (ACGT)
-#'@export
-#'@docType methods
-#'@rdname plotFWHM
-setGeneric("plotFWHM", function(project, cycle, base) standardGeneric("plotFWHM"))
+
 
 #'@rdname plotFWHM
 #'@aliases plotFWHM,savProject,integer,character-method
@@ -87,7 +103,7 @@ setMethod("plotFWHM", signature(project="savProject", cycle="integer", base="cha
     theme_bw() + theme(legend.position = "bottom") + scale_fill_continuous(guide = guide_colorbar(title=val, barwidth=10), limits=c(0,10) ) +
     facet_grid(~lane, space="free", scales="free") +
     xlab("") + ylab("") + scale_x_discrete(labels="") 
-  grid.arrange(p)
+  gridExtra::grid.arrange(p)
 } )
 
 #'@rdname plotFWHM
@@ -120,17 +136,7 @@ getFormatQGT30 <- function(data, cycle=1L) {
   ))
 }
 
-#'Plot Quality > 30 for a flowcell
-#'
-#'Generate a plot for a given cycle of the percentage of clusters in each tile
-#'that are >= Q30.
-#'
-#'@param project SAV project
-#'@param cycle sequence cycle
-#'@export
-#'@docType methods
-#'@rdname plotQGT30
-setGeneric("plotQGT30", function(project, cycle) standardGeneric("plotQGT30"))
+
 
 #'@rdname plotQGT30
 #'@aliases plotQGT30,savProject,integer-method
@@ -146,23 +152,14 @@ setMethod("plotQGT30", signature(project="savProject", cycle="integer"), functio
     theme_bw() + theme(legend.position = "bottom") + scale_fill_continuous(guide = guide_colorbar(title="%Q>=30", barwidth=10), limits=c(0,100) ) +
     facet_grid(~lane, space="free", scales="free") +
     xlab("") + ylab("") + scale_x_discrete(labels="") 
-  grid.arrange(p)
+  gridExtra::grid.arrange(p)
 } )
 
 #'@rdname plotQGT30
 #'@aliases plotQGT30,savProject,missing-method
 setMethod("plotQGT30", signature(project="savProject", cycle="missing"), function(project) { plotQGT30(project, 1L)})
 
-#'PF Boxplot
-#'
-#'Generate a boxplot of the numbers of clusters and the number of
-#'Illumina pass-filter clusters per tile and lane
-#'
-#'@param project SAV project
-#'@export 
-#'@docType methods
-#'@rdname pfBoxplot
-setGeneric("pfBoxplot", function(project) standardGeneric("pfBoxplot"))
+
 
 #'@rdname pfBoxplot
 #'@aliases pfBoxplot,savProject-method
@@ -174,10 +171,10 @@ setMethod("pfBoxplot", signature("savProject"), function(project) {
   data <- data[data$code %in% c(100,101),]
   data[data$code==100, "code"] <- "Clusters"
   data[data$code==101, "code"] <- "PF"
-  p <- ggplot(data, aes(factor(lane), value)) + geom_boxplot(notch=F, aes(fill = code), alpha=.8) + ylim(0,max(data$value)) +
-  theme_bw() + theme(legend.position = "bottom") + 
-  labs(list(y=expression(paste("Clusters/", mm^2, sep="")), x="Lane", fill=""))
-  grid.arrange(p)
+  p <- ggplot2::ggplot(data, ggplot2::aes(factor(lane), value)) + ggplot2::geom_boxplot(notch=F, ggplot2::aes(fill = code), alpha=.8) + ggplot2::ylim(0,max(data$value)) +
+    ggplot2::theme_bw() + ggplot2::theme(legend.position = "bottom") + 
+    ggplot2::labs(list(y=expression(paste("Clusters/", mm^2, sep="")), x="Lane", fill=""))
+  gridExtra::grid.arrange(p)
 } )
 
 #format quality data
@@ -189,9 +186,9 @@ setMethod("pfBoxplot", signature("savProject"), function(project) {
 qFormat <- function(data,lane,cycles) {
   data <- data[data$lane==lane & data$cycle %in% cycles, ]
   quals <- paste("Q", 1:50, sep="")
-  mat <- melt(data[,c("cycle",quals)], id=c("cycle"), measured=quals)
-  mat <- dcast(mat, cycle ~ variable, sum)
-  mat <- melt(mat, id=c("cycle"), measured=quals)
+  mat <- reshape2::melt(data[,c("cycle",quals)], id=c("cycle"), measured=quals)
+  mat <- reshape2::dcast(mat, cycle ~ variable, sum)
+  mat <- reshape2::melt(mat, id=c("cycle"), measured=quals)
   mat[,2] <- as.numeric(gsub("Q", "", mat[,2]))
   colnames(mat) <- c("x", "y", "z")
   return(mat)
@@ -229,17 +226,7 @@ readToCycles <- function(project, read) {
   return(result[[read]])     
 }
 
-#'Generate a heatmap of qualities
-#'
-#'Plots a heatmap of quality vs cycle for a given lane for 1 or more sequence reads.  Read qualities include sequence + index.
-#'
-#'@param project SAV project
-#'@param lane integer lane specification
-#'@param read integer vector of sequence reads to include (not including index reads)
-#'@export
-#'@docType methods
-#'@rdname qualityHeatmap
-setGeneric("qualityHeatmap", function(project, lane, read) standardGeneric("qualityHeatmap") )
+
 
 #'@rdname qualityHeatmap
 #'@aliases qualityHeatmap,savProject,integer,integer-method
@@ -250,34 +237,19 @@ setMethod("qualityHeatmap", signature(project="savProject", lane="integer", read
     stop(paste("There are only", directions(project), "sequence read(s) on this flowcell, check read specification."))
   for (x in 1:length(read)) {
     mat <- qFormat(data=project@parsedData[["savQualityFormat"]], lane=lane, cycles=readToCycles(project, read))
-    plots[[x]] <- ggplot(mat, aes(x=x, y=y, z=z)) + 
-      stat_contour(bins=50, geom="polygon", aes(fill=..level..)) + ylim(0,50) + 
-      theme_bw() + scale_fill_gradient2(low="white", mid=muted("green"), high="red", midpoint=quantile(mat$z, .99) ) + 
+    plots[[x]] <- ggplot2::ggplot(mat, ggplot2::aes(x=x, y=y, z=z)) + 
+      ggplot2::stat_contour(bins=50, geom="polygon", ggplot2::aes(fill=..level..)) + ggplot2::ylim(0,50) + 
+      ggplot2::theme_bw() + ggplot2::scale_fill_gradient2(low="white", mid=scales::muted("green"), high="red", midpoint=quantile(mat$z, .99) ) + 
       xlab("cycle") + ylab("Q")
   }
-  do.call(grid.arrange, c(plots, ncol=length(plots)))
+  do.call(gridExtra::grid.arrange, c(plots, ncol=length(plots)))
 } )
 
 #'@rdname qualityHeatmap
 #'@aliases qualityHeatmap,savProject,numeric,numeric-method
 setMethod("qualityHeatmap", signature(project="savProject", lane="numeric", read="numeric"), function(project, lane, read) { qualityHeatmap(project, as.integer(lane), as.integer(read))})
 
-#'Generate Illumina reports folder
-#'
-#'Generate a folder of images that approximates the format of the folder that 
-#'was superceded by InterOp.
-#'
-#'@param project SAV project
-#'@param destination path to save reports folder
-#'@export
-#'@docType methods
-#'@rdname buildReports
-#'@examples
-#'\dontrun{
-#'example(savR)
-#'buildReports(fc, "reports")
-#'}
-setGeneric("buildReports", function(project, destination) standardGeneric("buildReports"))
+
 
 #'@rdname buildReports
 #'@aliases buildReports,savProject,character-method
@@ -293,14 +265,14 @@ setMethod("buildReports", signature(project="savProject", destination="character
     dir.create(get(f), showWarnings=F, recursive=T)
   }
   # PF plot
-  Cairo(file=paste(reports, "/NumClusters By Lane.png", sep=""), width=800, height=400, dpi=72, type="png", bg="white")
+  Cairo::Cairo(file=paste(reports, "/NumClusters By Lane.png", sep=""), width=800, height=400, dpi=72, type="png", bg="white")
   pfBoxplot(project)
   dev.off()
   # intensity plots
   path <- normalizePath(paste(reports, "Intensity", sep="/"))
   for (cycle in 1:project@cycles) {
     for (base in c("A", "C", "G", "T")) {
-      Cairo(file=paste(path, "/Chart_", cycle, "_", tolower(base), ".png", sep=""), width=300, height=800, dpi=72, type="png", bg="white")
+      Cairo::Cairo(file=paste(path, "/Chart_", cycle, "_", tolower(base), ".png", sep=""), width=300, height=800, dpi=72, type="png", bg="white")
       plotIntensity(project, cycle, base)
       dev.off()
     }
@@ -308,14 +280,14 @@ setMethod("buildReports", signature(project="savProject", destination="character
   # Q>30 plots
   path <- normalizePath(paste(reports, "NumGT30", sep="/"))
   for (cycle in 1:project@cycles) {
-      Cairo(file=paste(path, "/Chart_", cycle, ".png", sep=""), width=300, height=800, dpi=72, type="png", bg="white")
-      plotQGT30(project, cycle)
-      dev.off()
+    Cairo::Cairo(file=paste(path, "/Chart_", cycle, ".png", sep=""), width=300, height=800, dpi=72, type="png", bg="white")
+    plotQGT30(project, cycle)
+    dev.off()
   }
   # plot lane quality
   path <- normalizePath(paste(reports, "ByCycle", sep="/"))
   for (lane in 1:project@layout@lanecount) {
-    Cairo(file=paste(path, "/Qscore_L", lane, ".png", sep=""), width=800, height=400, dpi=72, type="png", bg="white")
+    Cairo::Cairo(file=paste(path, "/Qscore_L", lane, ".png", sep=""), width=800, height=400, dpi=72, type="png", bg="white")
     qualityHeatmap(project, lane, 1:project@directions)
     dev.off()
   } 
@@ -324,7 +296,7 @@ setMethod("buildReports", signature(project="savProject", destination="character
   path <- normalizePath(paste(reports, "FWHM", sep="/"))
   for (cycle in 1:project@cycles) {
     for (base in c("A", "C", "G", "T")) {
-      Cairo(file=paste(path, "/Chart_", cycle, "_", tolower(base), ".png", sep=""), width=300, height=800, dpi=72, type="png", bg="white")
+      Cairo::Cairo(file=paste(path, "/Chart_", cycle, "_", tolower(base), ".png", sep=""), width=300, height=800, dpi=72, type="png", bg="white")
       plotFWHM(project, cycle, base)
       dev.off()
     }
@@ -335,3 +307,128 @@ setMethod("buildReports", signature(project="savProject", destination="character
 #'@rdname buildReports
 #'@aliases buildReports,savProject,missing-method
 setMethod("buildReports", signature(project="savProject", destination="missing"), function(project) { buildReports(project, "reports")})
+
+
+#Generic binary parser
+#
+#@param project SAV project
+#@param format savFormat subclass to define data types
+#@return sorted data.frame of parsed data)
+parseBin <- function(project, format) {
+  path <- normalizePath(paste(project@location, "InterOp", format@filename, sep="/"))
+  fh <- file(path, "rb")
+  vers <- readBin(fh, what="integer", endian="little", size=1, signed=F)
+  if (vers != format@version) {
+    # TODO: check for other parsers
+    close(fh)
+    stop(paste("savR currently only supports version", format@version, "of this SAV file.", format@filename, "is reported as version", vers, "."))
+  }
+  reclen <- readBin(fh, what="integer", endian="little", size=1, signed=F)
+  if (reclen != sum(format@lengths))
+    stop(paste("file's declared record size (", reclen, ") does not equal formats declared size (", sum(format@lengths), ")"))
+  readlen <- 0
+  for (x in project@reads) {
+    readlen <- readlen + x@cycles
+  }
+  proj.size <- project@layout@lanecount * project@layout@surfacecount * project@layout@swathcount * project@layout@tilecount * readlen + 1
+  data <- vector("list", proj.size)
+  r <- 1
+  while (!isIncomplete(fh)) {
+    dat <- c()
+    for (i in 1:length(format@lengths)) {
+      if (format@type[i] != "integer") {
+        dat <- c(dat, readBin(fh, what=format@type[i], size=format@lengths[i], endian="little"))
+      } else if (format@type[i] == "integer" & format@lengths[i] == 2L) {
+        dat <- c(dat, readBin(fh, what=format@type[i], size=format@lengths[i], endian="little", signed=F))
+      } else {
+        # R does not handle 32-bit unsigned int :/
+        dat <- c(dat, readBin(fh, what=format@type[i], size=format@lengths[i], endian="little"))
+      }
+    }
+    if (length(dat)==0)
+      break
+    data[[r]] <- dat
+    r <- r + 1
+  }
+  data.f <- as.data.frame(do.call("rbind", data))
+  close(fh)
+  colnames(data.f) <- format@name
+  
+  if (max(data.f[,"lane"]) != project@layout@lanecount)
+    stop(cat("number of lanes in data file ( ", max(data.f[,"lane"]), ") does not equal project configuration value (" + project@layout@lanecount + ")"))
+  
+  data.f <- data.f[do.call(order, as.list(data.f[,format@order])),]
+  return(data.f)
+} 
+
+#validParser <- function(object) {
+#  if (length(object@format@name) != length(object@format@type) & length(object@format@type) != length(object@format@size))
+#    return("length of format parameters are not equal.")
+#  TRUE
+#}
+
+#setValidity("savParser", validParser)
+
+#Get basic flowcell statistics
+#
+#used to get flowcell information when data object has
+#lane, cycle, and tile data.
+#
+#@param data.frame of parsed data
+#@return list of statistics
+getFlowcellStats <- function(object) {
+  retval <- list()
+  retval$sides  <- as.numeric(substring(object$tile,1,1))
+  retval$swaths <- as.numeric(substring(object$tile,2,2))
+  retval$nsides <- as.numeric(length(unique(substring(object$tile,1,1))))
+  retval$nswath <- as.numeric(length(unique(substring(object$tile,2,2))))
+  retval$ntiles <- as.numeric(substr(max(object$tile),3,4))
+  retval$ncycle <- max(object$cycle)
+  retval$nlanes <- max(object$lane)
+  return(retval)
+} 
+
+#Add position data to parsed data
+#
+#Adds and x and a y column to parsed data.  These are used for
+#laying out tiles in a tile plot.  Values are organized by
+#lane, then by swath and surface.
+#
+#@param data data.frame of parsed data
+#@return annotated data.frame
+addPosition <- function(data) {
+  ##< addPosition
+  ### This is an internal method for annotating flowcell data with XY coordinates
+  ### used in tile plots of flowcell lanes.
+  stats <- getFlowcellStats(data)
+  return(cbind(data, 
+               x=((data$lane-1)*(stats$nswath*stats$nside)+1)+(stats$swaths-1)+((stats$sides-1)*stats$nsides + (stats$sides-1)), 
+               y=rep(rep(1:stats$ntiles, stats$nswath*stats$nsides*stats$ncycle), stats$nlanes)))
+} 
+
+#Do parsing
+#
+#After everything is configured, initialize parsing of SAV files.
+#
+#@param project SAV project
+init <- function(project) {
+  validFormats <- c("savCorrectedIntensityFormat", "savQualityFormat", "savTileFormat", "savExtractionFormat")
+  
+  for (x in validFormats) {
+    format <- new(x)
+    if (file.exists(normalizePath(paste(project@location, "InterOp", format@filename, sep="/")))) {
+      data <- parseBin(project, format)
+      # don't add position data to tiles
+      if (class(format)[1] != "savTileFormat")
+        data <- addPosition(data)
+      # removed unparsed date columns
+      if (class(format)[1] == "savExtractionFormat")
+        data <- data[,-c(12:13)]
+      project@parsedData[[x]] <- data
+    }
+  }
+  return(project)
+} 
+
+
+
