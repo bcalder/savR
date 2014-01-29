@@ -81,11 +81,11 @@ Sequencing Analysis Viewer User's Guide, available
 
 \section*{Description}
 
-The \textit{savR} function is passed a path to an Illumina HiSeq or MiSeq run, and returns a
+The \texttt{savR} function is passed a path to an Illumina HiSeq or MiSeq run, and returns a
 \texttt{savProject} object, containing the parsed data.  Accessor methods are available for
 information in the \texttt{RunInfo.xml} file as well as the parsed SAV Metrics files.  These include
-corrected intensities, quality metrics, tile metrics, and extraction metrics.  \textit{savR}
-comes with an example MiSeq data set which can be loaded thusly:
+corrected intensities, quality metrics, tile metrics, and extraction metrics.  The \textit{savR}
+package comes with an example MiSeq data set which can be loaded thusly:
 
 <<intro2,eval=F>>=
 fc <- savR(system.file("extdata", "MiSeq", package="savR"))
