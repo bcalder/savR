@@ -29,12 +29,14 @@
 
 \begin{document}
 
+\fvset{listparameters={\setlength{\topsep}{0pt}}} 
+\renewenvironment{Schunk}{\vspace{\topsep}}{\vspace{\topsep}} 
+\renewenvironment{Schunk}{\vspace{5pt}}{\vspace{5pt}} 
+
 \title{Using savR}
 \author{R. Brent Calder}
 
 \maketitle
-
-\section*{Introduction}
 
 <<prepare>>=
 library(savR)
@@ -46,50 +48,149 @@ fc <- savR(system.file("extdata", "MiSeq", package="savR"))
 
 <<show>>=
 fc
-head(correctedIntensities(fc))
-directions(fc)
-reads(fc)
 @
 
-<<plot,eval=F>>=
+<<doPfPlot,eval=F>>=
 pfBoxplot(fc)
 @
-
-<<doPlot,echo=F>>=
-png(filename="pf.png", width=600, height=300, res=72)
+<<pfPlot,echo=F>>=
+png(filename="pf.png", width=400, height=300, res=72)
 pfBoxplot(fc)
-dev.off()
+invisible(dev.off())
 @
 
 \begin{figure}[htb]
 \begin{center}
-\includegraphics{pf.png}
+\includegraphics[width=3in]{pf.png}
 \end{center}
 \caption{Boxplot of total vs. PF clusters}
-\label{fig:pfBoxplot}
+\label{fig:fp}
 \end{figure}
+
+\section*{Introduction}
+
+The Illumina Sequence Analysis Viewer (SAV) is a Windows application provided by Illumina that 
+presents graphs made in real time from data collected over the course of basecalling.  This data was 
+previously also made available in HTML format for inspection after the run; however, it is now
+preserved in binary format and not simply parsed by users who wish to perform automated quality
+assessment.  Here is presented \textit{savR}, an R package to parse the binary output, generate 
+QC assessment plots and make the data available to users of Illumina sequencing instruments.
+For more information about Illumina SAV, please consult the Illumina iCom website and the
+Sequencing Analysis Viewer User's Guide, available
+\href{https://duckduckgo.com/?q=sequencing%20analysis%20viewer%20user%27s%20guide}{\textit{online}}.
 
 \section*{Description}
 
-The Illumina Sequence Analysis Viewer (SAV) presents graphs made in real time from data collected
-over the course of basecalling.  This data is now preserved in binary format in the \texttt{InterOp}
-folder of an Illumina sequence run.  More information about this tool and the data are available
-\href{https://duckduckgo.com/?q=sequencing%20analysis%20viewer%20user%27s%20guide}{\textit{online}}.
-
-
-The \texttt{savR} function is passed a path to an Illumina HiSeq or MiSeq run, and returns a
+The \textit{savR} function is passed a path to an Illumina HiSeq or MiSeq run, and returns a
 \texttt{savProject} object, containing the parsed data.  Accessor methods are available for
 information in the \texttt{RunInfo.xml} file as well as the parsed SAV Metrics files.  These include
-corrected intensities, quality metrics, tile metrics, and extraction metrics.  There is a convenience
-function (\texttt{buildReports}), which partially reconstructs the Illumina reports folder
-which was superseded by SAV.
+corrected intensities, quality metrics, tile metrics, and extraction metrics.  \textit{savR}
+comes with an example MiSeq data set which can be loaded thusly:
+
+<<intro2,eval=F>>=
+fc <- savR(system.file("extdata", "MiSeq", package="savR"))
+@
+
+\subsection*{RunInfo.xml}
+
+The \texttt{RunInfo.xml} file is parsed and stored in the slots of the \texttt{savProject} object.
+There are accessor methods for the project's \texttt{location}, \texttt{reads}, number of ``ends'' 
+or \texttt{directions}, the \texttt{run} ID, the number of \texttt{cycles}, and a description of
+the \texttt{flowcellLayout}.
+
+<<ri>>=
+directions(fc)
+reads(fc)
+cycles(fc)
+flowcellLayout(fc)
+@
+
+\subsection*{Corrected intensitites}
+
+Corrected intensity metrics (obtained from \texttt{CorrectedIntMetricsOut.bin}) can be inspected
+by the \texttt{correctedIntestites} accessor method:
+
+<<ciex>>=
+head(correctedIntensities(fc), n=1)
+@
+
+This is a \texttt{data.frame} of intensity metrics; one line for each set of lane, tile and cycle 
+measurements. Reported statistics include average intensity, corrected intensity (for cross-talk between 
+bases and phasing/pre-phasing), called corrected intensities, number of called bases and signal to
+noise ratio.  There are methods which act upon \texttt{savProject} objects to produce QC plots, for example 
+plotIntensity to assess signal intensity for each channel as in figure \ref{fig:ci}.
+
+<<doCiPlot,eval=F>>=
+plotIntensity(fc)
+@
+
+<<ciPlot,echo=F>>=
+png(filename="ci.png", width=250, height=400, res=72)
+plotIntensity(fc)
+invisible(dev.off())
+@
+
+\begin{figure}[htb]
+\begin{center}
+\includegraphics[width=2.25in]{ci.png}
+\end{center}
+\caption{Corrected intensity plot: cycle 1, base ``A''.}
+\label{fig:ci}
+\end{figure}
+
+\subsection*{Quality Metrics}
+
+The quality metrics (\texttt{QMetricsOut.bin}) file contains per-lane/tile/cycle metrics for the number
+of clusters with quality at each PHRED value from 1-50.
+
+
+<<qmex>>=
+head(qualityMetrics(fc), n=1)
+@
+
+<<doQhPlot,eval=F>>=
+qualityHeatmap(fc,1,1)
+@
+
+<<qhPlot,echo=F>>=
+png(filename="qh.png", width=400, height=300, res=72)
+qualityHeatmap(fc,1,1)
+invisible(dev.off())
+@
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=3.5in]{qh.png}
+\end{center}
+\caption{Quality heatmap: lane 1, read 1.}
+\label{fig:qh}
+\end{figure}
+
+\subsection*{Tile Metrics}
+
+The tile metrics (\texttt{TileMetricsOut.bin}) file contains coded information about per-lane/cycle/tile cluster density,
+pass-filter clusters, phasing and pre-phasing data.  Consult the \texttt{tileMetrics} help page for more information.
+
+<<tmex>>=
+head(tileMetrics(fc), n=4)
+@
+
+\subsection*{Extraction Metrics}
+
+The extraction metrics (\texttt{ExtractionMetricsOut.bin}) file contains per-lane/cycle/tile information about per-base FWHM
+(full width pixel size of clusters at half maximum), 90th \%-ile intensity of signal intensity, and a datestamp.
 
 <<example2>>=
-head(correctedIntensities(fc), n=1)
-head(qualityMetrics(fc), n=1)
-head(tileMetrics(fc), n=1)
 head(extractionMetrics(fc), n=1)
 @
+
+\section*{Coda}
+
+There is a convenience function (\texttt{buildReports}), which partially reconstructs the Illumina reports folder
+that was previously generated by the Illumina instrument software and which was superseded by SAV and InterOp files.
+
+
+
 
 
 \end{document}

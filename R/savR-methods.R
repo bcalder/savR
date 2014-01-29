@@ -2,7 +2,7 @@
 NULL
 
 #'@rdname savR
-#'@aliases savR,character-method
+#@aliases savR,character-method
 setMethod("savR", signature("character"), function(object) {
   retval <- new("savProject", location=normalizePath(object))
   retval@cycles <- 0L
@@ -36,7 +36,7 @@ setMethod("savR", signature("character"), function(object) {
 } )
 
 #'@rdname savR
-#'@aliases savR,missing-method
+#@aliases savR,missing-method
 setMethod("savR", signature("missing"), function() { savR(".") })
 
 subsetSide <- function(data, side) {
@@ -51,7 +51,7 @@ subsetSide <- function(data, side) {
 
 
 #'@rdname plotIntensity
-#'@aliases plotIntensity,savProject,integer,character-method
+#@aliases plotIntensity,savProject,integer,character-method
 setMethod("plotIntensity", signature(project="savProject", cycle="integer", base="character"), function(project, cycle=1L, base=c("A", "C", "G", "T")) {
   x <- y <- NULL
   if (cycle < 0)
@@ -76,19 +76,19 @@ setMethod("plotIntensity", signature(project="savProject", cycle="integer", base
 } )
 
 #'@rdname plotIntensity
-#'@aliases plotIntensity,savProject,missing,missing-method
+#@aliases plotIntensity,savProject,missing,missing-method
 setMethod("plotIntensity", signature(project="savProject", cycle="missing", base="missing"), function(project) { plotIntensity(project, 1L, "A")})
 #'@rdname plotIntensity
-#'@aliases plotIntensity,savProject,integer,missing-method
+#@aliases plotIntensity,savProject,integer,missing-method
 setMethod("plotIntensity", signature(project="savProject", cycle="integer", base="missing"), function(project, cycle) { plotIntensity(project, cycle, "A")})
 #'@rdname plotIntensity
-#'@aliases plotIntensity,savProject,missing,character-method
+#@aliases plotIntensity,savProject,missing,character-method
 setMethod("plotIntensity", signature(project="savProject", cycle="missing", base="character"), function(project, base) { plotIntensity(project, 1L, base)})
 
 
 
 #'@rdname plotFWHM
-#'@aliases plotFWHM,savProject,integer,character-method
+#@aliases plotFWHM,savProject,integer,character-method
 setMethod("plotFWHM", signature(project="savProject", cycle="integer", base="character"), function(project, cycle=1L, base=c("A", "C", "G", "T")) {
   x <- y <- NULL
   if (cycle < 0)
@@ -107,13 +107,13 @@ setMethod("plotFWHM", signature(project="savProject", cycle="integer", base="cha
 } )
 
 #'@rdname plotFWHM
-#'@aliases plotFWHM,savProject,missing,missing-method
+#@aliases plotFWHM,savProject,missing,missing-method
 setMethod("plotFWHM", signature(project="savProject", cycle="missing", base="missing"), function(project) { plotFWHM(project, 1L, "A")})
 #'@rdname plotFWHM
-#'@aliases plotFWHM,savProject,integer,missing-method
+#@aliases plotFWHM,savProject,integer,missing-method
 setMethod("plotFWHM", signature(project="savProject", cycle="integer", base="missing"), function(project, cycle) { plotFWHM(project, cycle, "A")})
 #'@rdname plotFWHM
-#'@aliases plotFWHM,savProject,missing,character-method
+#@aliases plotFWHM,savProject,missing,character-method
 setMethod("plotFWHM", signature(project="savProject", cycle="missing", base="character"), function(project, base) { plotFWHM(project, 1L, base)})
 
 #Get formatted data for Q GT30 plot
@@ -139,7 +139,7 @@ getFormatQGT30 <- function(data, cycle=1L) {
 
 
 #'@rdname plotQGT30
-#'@aliases plotQGT30,savProject,integer-method
+#@aliases plotQGT30,savProject,integer-method
 setMethod("plotQGT30", signature(project="savProject", cycle="integer"), function(project, cycle=1L) {
   x <- y <- gte30 <- NULL
   if (cycle < 0)
@@ -156,13 +156,13 @@ setMethod("plotQGT30", signature(project="savProject", cycle="integer"), functio
 } )
 
 #'@rdname plotQGT30
-#'@aliases plotQGT30,savProject,missing-method
+#@aliases plotQGT30,savProject,missing-method
 setMethod("plotQGT30", signature(project="savProject", cycle="missing"), function(project) { plotQGT30(project, 1L)})
 
 
 
 #'@rdname pfBoxplot
-#'@aliases pfBoxplot,savProject-method
+#@aliases pfBoxplot,savProject-method
 setMethod("pfBoxplot", signature("savProject"), function(project) {
   lane <- value <- code <- NULL
   data <- project@parsedData[["savTileFormat"]]
@@ -229,7 +229,7 @@ readToCycles <- function(project, read) {
 
 
 #'@rdname qualityHeatmap
-#'@aliases qualityHeatmap,savProject,integer,integer-method
+#@aliases qualityHeatmap,savProject,integer,integer-method
 setMethod("qualityHeatmap", signature(project="savProject", lane="integer", read="integer"), function(project, lane, read) {
   y <- z <- ..level.. <- NULL
   plots <- list()
@@ -246,14 +246,14 @@ setMethod("qualityHeatmap", signature(project="savProject", lane="integer", read
 } )
 
 #'@rdname qualityHeatmap
-#'@aliases qualityHeatmap,savProject,numeric,numeric-method
+#@aliases qualityHeatmap,savProject,numeric,numeric-method
 setMethod("qualityHeatmap", signature(project="savProject", lane="numeric", read="numeric"), function(project, lane, read) { qualityHeatmap(project, as.integer(lane), as.integer(read))})
 
 
 
 #'@rdname buildReports
-#'@aliases buildReports,savProject,character-method
-setMethod("buildReports", signature(project="savProject", destination="character"), function(project, destination=NULL) {
+#@aliases buildReports,savProject,character-method
+setMethod("buildReports", signature(project="savProject", destination="character"), function(project, destination="./savR-reports") {
   path <- location(project)
   if (!file.exists(path))
     stop(paste("Project", path, "does not exist."))
@@ -287,7 +287,7 @@ setMethod("buildReports", signature(project="savProject", destination="character
   # plot lane quality
   path <- normalizePath(paste(reports, "ByCycle", sep="/"))
   for (lane in 1:project@layout@lanecount) {
-    Cairo::Cairo(file=paste(path, "/Qscore_L", lane, ".png", sep=""), width=800, height=400, dpi=72, type="png", bg="white")
+    Cairo::Cairo(file=paste(path, "/QScore_L", lane, ".png", sep=""), width=800, height=400, dpi=72, type="png", bg="white")
     qualityHeatmap(project, lane, 1:project@directions)
     dev.off()
   } 
@@ -305,8 +305,8 @@ setMethod("buildReports", signature(project="savProject", destination="character
 } )
 
 #'@rdname buildReports
-#'@aliases buildReports,savProject,missing-method
-setMethod("buildReports", signature(project="savProject", destination="missing"), function(project) { buildReports(project, "reports")})
+#@aliases buildReports,savProject,missing-method
+setMethod("buildReports", signature(project="savProject", destination="missing"), function(project) { buildReports(project, "./savR-reports")})
 
 
 #Generic binary parser
@@ -355,7 +355,7 @@ parseBin <- function(project, format) {
   colnames(data.f) <- format@name
   
   if (max(data.f[,"lane"]) != project@layout@lanecount)
-    stop(cat("number of lanes in data file ( ", max(data.f[,"lane"]), ") does not equal project configuration value (" + project@layout@lanecount + ")"))
+    stop(paste("number of lanes in data file ( ", max(data.f[,"lane"]), ") does not equal project configuration value (" + project@layout@lanecount + ")", sep=""))
   
   data.f <- data.f[do.call(order, as.list(data.f[,format@order])),]
   return(data.f)

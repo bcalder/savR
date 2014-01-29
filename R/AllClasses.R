@@ -35,7 +35,7 @@ setClass("illuminaFlowCellLayout", slots=c(lanecount="integer",
 #'@section Slots:
 #'\describe{
 #'\item{\code{location}:}{Full path to flowcell directory}
-#'\item{\code{reads}:}{List of \link{illuminaRead}}
+#'\item{\code{reads}:}{List of \link{illuminaRead-class}}
 #'\item{\code{layout}:}{\link{illuminaFlowCellLayout-class}}
 #'\item{\code{runid}:}{Run ID}
 #'\item{\code{number}:}{Run number}
