@@ -1,0 +1,32 @@
+\docType{methods}
+\name{plotFWHM}
+\alias{plotFWHM}
+\alias{plotFWHM,savProject,integer,character-method}
+\alias{plotFWHM,savProject,integer,missing-method}
+\alias{plotFWHM,savProject,missing,character-method}
+\alias{plotFWHM,savProject,missing,missing-method}
+\title{Generate FWHM plots}
+\usage{
+plotFWHM(project, cycle, base)
+
+\S4method{plotFWHM}{savProject,integer,character}(project, cycle = 1L,
+  base = c("A", "C", "G", "T"))
+
+\S4method{plotFWHM}{savProject,missing,missing}(project)
+
+\S4method{plotFWHM}{savProject,integer,missing}(project, cycle)
+
+\S4method{plotFWHM}{savProject,missing,character}(project, base)
+}
+\arguments{
+  \item{project}{SAV project}
+
+  \item{cycle}{sequence cycle}
+
+  \item{base}{nucleotide base (ACGT)}
+}
+\description{
+Plots the average full width of clusters at half maximum
+(FWHM) of each tile for a given cycle and base.
+}
+

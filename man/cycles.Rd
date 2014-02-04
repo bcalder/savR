@@ -1,0 +1,26 @@
+\docType{methods}
+\name{cycles}
+\alias{cycles}
+\alias{cycles,savProject-method}
+\title{Get the total number of cycles}
+\usage{
+cycles(project)
+
+\S4method{cycles}{savProject}(project)
+}
+\arguments{
+  \item{project}{SAV project}
+}
+\value{
+total number of cycles in run, including all sequencing and
+index reads.
+}
+\description{
+Accessor to obtain the total number of cycles sequenced in
+an Illumina sequencing run.
+}
+\examples{
+example(savR)
+cycles(fc)
+}
+

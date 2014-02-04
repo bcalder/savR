@@ -1,0 +1,16 @@
+\docType{class}
+\name{illuminaFlowCellLayout-class}
+\alias{illuminaFlowCellLayout-class}
+\title{Layout of an Illumina flowcell}
+\description{
+Class representation of the features of an Illumina flow
+cell.
+}
+\section{Slots}{
+  \describe{ \item{\code{lanecount}:}{Number of lanes on
+  the flowcell} \item{\code{surfacecount}:}{Number of
+  surfaces} \item{\code{swathcount}:}{Number of imaging
+  swaths} \item{\code{tilecount}:}{Number of tiles per
+  swath} }
+}
+

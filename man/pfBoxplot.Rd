@@ -1,0 +1,18 @@
+\docType{methods}
+\name{pfBoxplot}
+\alias{pfBoxplot}
+\alias{pfBoxplot,savProject-method}
+\title{PF Boxplot}
+\usage{
+pfBoxplot(project)
+
+\S4method{pfBoxplot}{savProject}(project)
+}
+\arguments{
+  \item{project}{SAV project}
+}
+\description{
+Generate a boxplot of the numbers of clusters and the
+number of Illumina pass-filter clusters per tile and lane
+}
+

@@ -1,0 +1,25 @@
+\docType{methods}
+\name{directions}
+\alias{directions}
+\alias{directions,savProject-method}
+\title{Get the number of sequence reads}
+\usage{
+directions(project)
+
+\S4method{directions}{savProject}(project)
+}
+\arguments{
+  \item{project}{SAV project}
+}
+\value{
+number of reads
+}
+\description{
+Returns the number of sequencing reads (excluding index
+reads).
+}
+\examples{
+example(savR)
+directions(fc)
+}
+

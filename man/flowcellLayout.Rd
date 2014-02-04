@@ -1,0 +1,25 @@
+\docType{methods}
+\name{flowcellLayout}
+\alias{flowcellLayout}
+\alias{flowcellLayout,savProject-method}
+\title{Get flowcell layout}
+\usage{
+flowcellLayout(project)
+
+\S4method{flowcellLayout}{savProject}(project)
+}
+\arguments{
+  \item{project}{SAV project}
+}
+\value{
+\link{illuminaFlowCellLayout-class} object
+}
+\description{
+Accessor to obtain information about the characteristics of
+the flowcell from an Illumina sequencing run.
+}
+\examples{
+example(savR)
+flowcellLayout(fc)
+}
+

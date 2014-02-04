@@ -1,0 +1,30 @@
+\docType{methods}
+\name{qualityMetrics}
+\alias{qualityMetrics}
+\alias{qualityMetrics,savProject-method}
+\title{Get Quality Metrics data}
+\usage{
+qualityMetrics(project)
+
+\S4method{qualityMetrics}{savProject}(project)
+}
+\arguments{
+  \item{project}{SAV project}
+}
+\value{
+sorted data.frame of quality data
+}
+\description{
+Quality metric by lane, tile and cycle.
+}
+\details{
+\describe{ \item{\code{lane}:}{Lane number}
+\item{\code{tile}:}{Tile ID} \item{\code{cycle}:}{Cycle
+number} \item{\code{Q1-Q50}:}{Number of clusters with
+quality of indicated column} }
+}
+\examples{
+example(savR)
+colnames(qualityMetrics(fc))
+}
+
