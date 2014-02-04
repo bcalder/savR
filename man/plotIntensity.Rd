@@ -1,0 +1,32 @@
+\docType{methods}
+\name{plotIntensity}
+\alias{plotIntensity}
+\alias{plotIntensity,savProject,integer,character-method}
+\alias{plotIntensity,savProject,integer,missing-method}
+\alias{plotIntensity,savProject,missing,character-method}
+\alias{plotIntensity,savProject,missing,missing-method}
+\title{Plot flowcell intensity by base and cycle}
+\usage{
+plotIntensity(project, cycle, base)
+
+\S4method{plotIntensity}{savProject,integer,character}(project, cycle = 1L,
+  base = c("A", "C", "G", "T"))
+
+\S4method{plotIntensity}{savProject,missing,missing}(project)
+
+\S4method{plotIntensity}{savProject,integer,missing}(project, cycle)
+
+\S4method{plotIntensity}{savProject,missing,character}(project, base)
+}
+\arguments{
+  \item{project}{A \link{savProject-class} object}
+
+  \item{cycle}{integer cycle number}
+
+  \item{base}{character for nucleotide}
+}
+\description{
+Draws a representation of a flowcell, showing the average
+corrected called intensity values.
+}
+

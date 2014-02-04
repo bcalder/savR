@@ -1,0 +1,25 @@
+\docType{methods}
+\name{reads}
+\alias{reads}
+\alias{reads,savProject-method}
+\title{Get reads}
+\usage{
+reads(project)
+
+\S4method{reads}{savProject}(project)
+}
+\arguments{
+  \item{project}{SAV project}
+}
+\value{
+List of \link{illuminaRead-class} objects
+}
+\description{
+Accessor to obtain information about the reads of a
+particular Illumina sequencing run.
+}
+\examples{
+example(savR)
+reads(fc)
+}
+

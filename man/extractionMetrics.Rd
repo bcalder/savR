@@ -1,0 +1,33 @@
+\docType{methods}
+\name{extractionMetrics}
+\alias{extractionMetrics}
+\alias{extractionMetrics,savProject-method}
+\title{Get Extraction Metrics}
+\usage{
+extractionMetrics(project)
+
+\S4method{extractionMetrics}{savProject}(project)
+}
+\arguments{
+  \item{project}{SAV project}
+}
+\value{
+sorted data.frame of Extraction metrics
+}
+\description{
+Extraction (intensity and FWHM) metrics for lane, tile, and
+cycle.
+}
+\details{
+\describe{ \item{\code{lane}:}{Lane number}
+\item{\code{tile}:}{Tile ID} \item{\code{cycle}:}{Cycle
+number} \item{\code{FWHM_[ACGT]}:}{Full width at half
+maximum for A, C, G, or T}
+\item{\code{int_[ACGT]}:}{Intensity of channel A, C, G, or
+T} \item{\code{datestamp}:}{Time/date stamp} }
+}
+\examples{
+example(savR)
+colnames(extractionMetrics(fc))
+}
+

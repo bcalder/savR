@@ -1,0 +1,36 @@
+\docType{methods}
+\name{correctedIntensities}
+\alias{correctedIntensities}
+\alias{correctedIntensities,savProject-method}
+\title{Get Corrected Intensity data}
+\usage{
+correctedIntensities(project)
+
+\S4method{correctedIntensities}{savProject}(project)
+}
+\arguments{
+  \item{project}{SAV project}
+}
+\value{
+sorted data.frame of CI data.
+}
+\description{
+Returns a data frame of corrected intensity data.
+}
+\details{
+\describe{ \item{\code{lane}:}{Lane number} \cr
+\item{\code{tile}:}{Tile ID} \cr \item{\code{cycle}:}{Cycle
+number} \cr \item{\code{avg_intensity}:}{Average intensity}
+\cr \item{\code{avg_cor_[ACGT]}:}{Average corrected
+intensity of channel A, C, G, or T} \cr
+\item{\code{avg_cor_called_[ACGT]}:}{Average corrected
+intensity for called clusters in channel A, C, G, or T} \cr
+\item{\code{num_\{none|[ACGT]\}}:}{Number of called bases
+for no-call, A, C, G, or T} \cr
+\item{\code{sig_noise}:}{Signal to noise ratio} \cr }
+}
+\examples{
+example(savR)
+colnames(correctedIntensities(fc))
+}
+
