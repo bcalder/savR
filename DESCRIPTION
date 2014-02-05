@@ -8,6 +8,8 @@ Maintainer: R. Brent Calder <brent.calder@einstein.yu.edu>
 Description: Parse Illumina Sequence Analysis Viewer (SAV)
     files, access data, and generate QC plots.
 License: AGPL-3
+URL: https://github.com/bcalder/savR
+BugReports: https://github.com/bcalder/savR/issues
 biocViews: Sequencing, HighThroughputSequencing
 Depends: ggplot2
 Imports: methods, reshape2, scales, gridExtra, XML
