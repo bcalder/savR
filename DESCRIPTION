@@ -1,7 +1,7 @@
 Package: savR
 Type: Package
 Title: Parse and analyze Illumina SAV files
-Version: 1.4.0
+Version: 1.5.0
 Date: 2014-02-04
 Author: R. Brent Calder
 Maintainer: R. Brent Calder <brent.calder@einstein.yu.edu>
