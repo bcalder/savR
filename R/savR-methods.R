@@ -206,14 +206,13 @@ readToCycles <- function(project, read) {
     cycles <- c(cycles, x@cycles)
     indexed <- c(indexed, x@index)
   }
-  seqreadlen <- cycles[!indexed]
-  read <- 0
+  seqreadlen <- vector("integer", sum(!indexed))
+  r <- 0
   for (i in 1:length(indexed)) {
     if (!indexed[i]) {
-      read <- read + 1
-    } else {
-      seqreadlen[read] <- seqreadlen[read] + cycles[i]
-    }
+      r <- r + 1
+    } 
+    seqreadlen[r] <- seqreadlen[r] + cycles[i]      
   }
   start <- 1
   end <- 0
@@ -430,5 +429,24 @@ init <- function(project) {
   return(project)
 } 
 
+#'@rdname clusters
+#@aliases clusters,savProject,integer
+setMethod("clusters", signature(project="savProject", lane="integer"), function(project, lane=1L) {
+  if (!all(lane %in% 1:flowcellLayout(fc)@lanecount)) {
+    stop(paste("lane" , lane, "is not consistent with number of lanes on flowcell (", flowcellLayout(fc)@lanecount, ")", sep=" "))
+  }
+  tm <- tileMetrics(project)
+  return(sum(tm[tm$lane %in% lane & tm$code==102,]$value))
+})
+
+#'@rdname pfClusters
+#@aliases pfClusters,savProject,integer
+setMethod("pfClusters", signature(project="savProject", lane="integer"), function(project, lane=1L) {
+  if (!all(lane %in% 1:flowcellLayout(fc)@lanecount)) {
+    stop(paste("lane" , lane, "is not consistent with number of lanes on flowcell (", flowcellLayout(fc)@lanecount, ")", sep=" "))
+  }
+  tm <- tileMetrics(project)
+  return(sum(tm[tm$lane %in% lane & tm$code==103,]$value))
+})
 
 
