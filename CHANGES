@@ -1,0 +1,12 @@
+1.5.1 2014-11-12:
+
+  General
+    * bug fix for qualityHeatmap that affected paired end indexed data
+    * added getters for number of clusters and PF clusters per lane (clusters, pfClusters)
+
+1.0.0 2013-11-12:
+
+  Initial release
+
+
+
