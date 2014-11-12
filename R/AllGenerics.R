@@ -279,3 +279,34 @@ setGeneric("qualityHeatmap", function(project, lane, read) standardGeneric("qual
 #'}
 setGeneric("buildReports", function(project, destination) standardGeneric("buildReports"))
 
+#'Get number of clusters per lane
+#'
+#'Sum the total number of clusters for all tiles in the lane.
+#'
+#'@param project SAV project
+#'@param lane lane(s) number
+#'@export
+#'@docType methods
+#'@rdname clusters
+#'@examples
+#'\dontrun{
+#'example(savR)
+#'clusters(fc, 1L)
+#'} 
+setGeneric("clusters", function(project, lane) standardGeneric("clusters"))
+
+#'Get number of PF clusters per lane
+#'
+#'Sum the total pass filter number of clusters for all tiles in the lane.
+#'
+#'@param project SAV project
+#'@param lane lane(s) number
+#'@export
+#'@docType methods
+#'@rdname pfClusters
+#'@examples
+#'\dontrun{
+#'example(savR)
+#'pfClusters(fc, 1L)
+#'} 
+setGeneric("pfClusters", function(project, lane) standardGeneric("pfClusters"))
