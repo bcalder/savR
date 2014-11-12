@@ -3,8 +3,8 @@
 #'\tabular{ll}{
 #'Package: \tab savR \cr
 #'Type: \tab Package \cr
-#'Version: \tab 1.4.1 \cr
-#'Date: \tab 2014-02-04 \cr
+#'Version: \tab 1.5.1 \cr
+#'Date: \tab 2014-11-12 \cr
 #'License: \tab AGPL-3 \cr
 #'LazyLoad: \tab yes \cr
 #'}
