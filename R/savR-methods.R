@@ -443,7 +443,7 @@ setMethod("clusters", signature(project="savProject", lane="integer"), function(
 #@aliases pfClusters,savProject,integer
 setMethod("pfClusters", signature(project="savProject", lane="integer"), function(project, lane=1L) {
   if (!all(lane %in% 1:flowcellLayout(project)@lanecount)) {
-    stop(paste("lane" , lane, "is not consistent with number of lanes on flowcell (", flowcellLayout(fc)@lanecount, ")", sep=" "))
+    stop(paste("lane" , lane, "is not consistent with number of lanes on flowcell (", flowcellLayout(project)@lanecount, ")", sep=" "))
   }
   tm <- tileMetrics(project)
   return(sum(tm[tm$lane %in% lane & tm$code==103,]$value))
