@@ -432,8 +432,8 @@ init <- function(project) {
 #'@rdname clusters
 #@aliases clusters,savProject,integer
 setMethod("clusters", signature(project="savProject", lane="integer"), function(project, lane=1L) {
-  if (!all(lane %in% 1:flowcellLayout(fc)@lanecount)) {
-    stop(paste("lane" , lane, "is not consistent with number of lanes on flowcell (", flowcellLayout(fc)@lanecount, ")", sep=" "))
+  if (!all(lane %in% 1:flowcellLayout(project)@lanecount)) {
+    stop(paste("lane" , lane, "is not consistent with number of lanes on flowcell (", flowcellLayout(project)@lanecount, ")", sep=" "))
   }
   tm <- tileMetrics(project)
   return(sum(tm[tm$lane %in% lane & tm$code==102,]$value))
@@ -442,7 +442,7 @@ setMethod("clusters", signature(project="savProject", lane="integer"), function(
 #'@rdname pfClusters
 #@aliases pfClusters,savProject,integer
 setMethod("pfClusters", signature(project="savProject", lane="integer"), function(project, lane=1L) {
-  if (!all(lane %in% 1:flowcellLayout(fc)@lanecount)) {
+  if (!all(lane %in% 1:flowcellLayout(project)@lanecount)) {
     stop(paste("lane" , lane, "is not consistent with number of lanes on flowcell (", flowcellLayout(fc)@lanecount, ")", sep=" "))
   }
   tm <- tileMetrics(project)
