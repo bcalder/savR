@@ -235,7 +235,7 @@ setMethod("qualityHeatmap", signature(project="savProject", lane="integer", read
   if (!all( read %in% 1:directions(project)))
     stop(paste("There are only", directions(project), "sequence read(s) on this flowcell, check read specification."))
   for (x in 1:length(read)) {
-    mat <- qFormat(data=project@parsedData[["savQualityFormat"]], lane=lane, cycles=readToCycles(project, read))
+    mat <- qFormat(data=project@parsedData[["savQualityFormat"]], lane=lane, cycles=readToCycles(project, read[x]))
     plots[[x]] <- ggplot2::ggplot(mat, ggplot2::aes(x=x, y=y, z=z)) + 
       ggplot2::stat_contour(bins=50, geom="polygon", ggplot2::aes(fill=..level..)) + ggplot2::ylim(0,50) + 
       ggplot2::theme_bw() + ggplot2::scale_fill_gradient2(low="white", mid=scales::muted("green"), high="red", midpoint=quantile(mat$z, .99) ) + 
