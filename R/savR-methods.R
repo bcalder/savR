@@ -271,33 +271,75 @@ setMethod("buildReports", signature(project="savProject", destination="character
   path <- normalizePath(paste(reports, "Intensity", sep="/"))
   for (cycle in 1:project@cycles) {
     for (base in c("A", "C", "G", "T")) {
-      Cairo::Cairo(file=paste(path, "/Chart_", cycle, "_", tolower(base), ".png", sep=""), width=300, height=800, dpi=72, type="png", bg="white")
-      plotIntensity(project, cycle, base)
-      dev.off()
+      tryCatch({
+        Cairo::Cairo(file=paste(path, "/Chart_", cycle, "_", tolower(base), ".png", sep=""), width=300, height=800, dpi=72, type="png", bg="white")
+        plotIntensity(project, cycle, base)
+        dev.off()},
+        warning = function(w) {
+          return()
+        },
+        error = function(e) {
+          warning("Unable to create intensity plot for cycle ", cycle , " base ", base, ": ", geterrmessage())
+        },
+        finally = {
+          try(dev.off(), silent=TRUE)
+        })
     }
   }
   # Q>30 plots
   path <- normalizePath(paste(reports, "NumGT30", sep="/"))
   for (cycle in 1:project@cycles) {
-    Cairo::Cairo(file=paste(path, "/Chart_", cycle, ".png", sep=""), width=300, height=800, dpi=72, type="png", bg="white")
-    plotQGT30(project, cycle)
-    dev.off()
+    tryCatch({
+      Cairo::Cairo(file=paste(path, "/Chart_", cycle, ".png", sep=""), width=300, height=800, dpi=72, type="png", bg="white")
+      plotQGT30(project, cycle)
+      dev.off()},
+      warning = function(w) {
+        return()
+      },
+      error = function(e) {
+        warning("Unable to create Q>30 plot for cycle ", cycle, ": ", geterrmessage())
+      },
+      finally = {
+        try(dev.off(), silent=TRUE)
+      })
   }
+  
+  
   # plot lane quality
   path <- normalizePath(paste(reports, "ByCycle", sep="/"))
   for (lane in 1:project@layout@lanecount) {
-    Cairo::Cairo(file=paste(path, "/QScore_L", lane, ".png", sep=""), width=800, height=400, dpi=72, type="png", bg="white")
-    qualityHeatmap(project, lane, 1:project@directions)
-    dev.off()
+    tryCatch({
+      Cairo::Cairo(file=paste(path, "/QScore_L", lane, ".png", sep=""), width=800, height=400, dpi=72, type="png", bg="white")
+      qualityHeatmap(project, lane, 1:project@directions)
+      dev.off()},
+      warning = function(w) {
+        return()
+      },
+      error = function(e) {
+        warning("Unable to create lane quality plot for lane ", lane, ": ", geterrmessage())
+      },
+      finally = {
+        try(dev.off(), silent=TRUE)
+      })
   } 
   
   # FWHM plots
   path <- normalizePath(paste(reports, "FWHM", sep="/"))
   for (cycle in 1:project@cycles) {
     for (base in c("A", "C", "G", "T")) {
-      Cairo::Cairo(file=paste(path, "/Chart_", cycle, "_", tolower(base), ".png", sep=""), width=300, height=800, dpi=72, type="png", bg="white")
-      plotFWHM(project, cycle, base)
-      dev.off()
+      tryCatch({
+        Cairo::Cairo(file=paste(path, "/Chart_", cycle, "_", tolower(base), ".png", sep=""), width=300, height=800, dpi=72, type="png", bg="white")
+        plotFWHM(project, cycle, base)
+        dev.off()},
+        warning = function(w) {
+          return()
+        },
+        error = function(e) {
+          warning("Unable to create FWHM plot for cycle ", cycle, " base ", base, ": ", geterrmessage())
+        },
+        finally = {
+          try(dev.off(), silent=TRUE)
+        })
     }
   }  
   
@@ -318,9 +360,10 @@ parseBin <- function(project, format) {
   fh <- file(path, "rb")
   vers <- readBin(fh, what="integer", endian="little", size=1, signed=F)
   if (vers != format@version) {
-    # TODO: check for other parsers
+    # TODO: check for other parsers and handle more than one case
     close(fh)
-    stop(paste("savR currently only supports version", format@version, "of this SAV file.", format@filename, "is reported as version", vers, "."))
+    warning(paste("savR currently only supports version", format@version, "of this SAV file.", format@filename, "is reported as version", vers, "."))
+    return(NULL)
   }
   reclen <- readBin(fh, what="integer", endian="little", size=1, signed=F)
   if (reclen != sum(format@lengths))
@@ -417,12 +460,18 @@ init <- function(project) {
     format <- new(x)
     if (file.exists(normalizePath(paste(project@location, "InterOp", format@filename, sep="/")))) {
       data <- parseBin(project, format)
-      # don't add position data to tiles
-      if (class(format)[1] != "savTileFormat")
-        data <- addPosition(data)
-      # removed unparsed date columns
-      if (class(format)[1] == "savExtractionFormat")
-        data <- data[,-c(12:13)]
+      
+      # TODO: fix format specific info
+      
+      if (!is.null(data)) {
+        # don't add position data to tiles
+        if (class(format)[1] != "savTileFormat" )
+          data <- addPosition(data)
+        # removed unparsed date columns
+        if (class(format)[1] == "savExtractionFormat")
+          data <- data[,-c(12:13)]
+      }
+      
       project@parsedData[[x]] <- data
     }
   }
