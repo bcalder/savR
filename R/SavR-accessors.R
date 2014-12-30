@@ -24,16 +24,31 @@ setMethod("directions", signature(project="savProject"), function(project) proje
 
 #'@rdname correctedIntensities
 #'@aliases correctedIntensities,savProject-method
-setMethod("correctedIntensities", signature(project="savProject"), function(project) { tmp <- project@parsedData[["savCorrectedIntensityFormat"]]; return(tmp[,!colnames(tmp) %in% c("x", "y")]) })
+setMethod("correctedIntensities", signature(project="savProject"), function(project) { 
+  tmp <- project@parsedData[["savCorrectedIntensityFormat"]]
+  if (is.null(tmp)) return(tmp)
+  return(tmp[,!colnames(tmp) %in% c("x", "y")]) 
+})
 
 #'@rdname qualityMetrics
 #'@aliases qualityMetrics,savProject-method
-setMethod("qualityMetrics", signature(project="savProject"), function(project) { tmp <- project@parsedData[["savQualityFormat"]]; return(tmp[,!colnames(tmp) %in% c("x", "y")]) })
+setMethod("qualityMetrics", signature(project="savProject"), function(project) { 
+  tmp <- project@parsedData[["savQualityFormat"]]
+  if (is.null(tmp)) return(tmp)
+  return(tmp[,!colnames(tmp) %in% c("x", "y")]) 
+})
 
 #'@rdname tileMetrics
 #'@aliases tileMetrics,savProject-method
-setMethod("tileMetrics", signature(project="savProject"), function(project) project@parsedData[["savTileFormat"]])
+setMethod("tileMetrics", signature(project="savProject"), function(project) {
+  tmp <- project@parsedData[["savTileFormat"]]
+  return(tmp)
+})
 
 #'@rdname extractionMetrics
 #'@aliases extractionMetrics,savProject-method
-setMethod("extractionMetrics", signature(project="savProject"), function(project) { tmp <- project@parsedData[["savExtractionFormat"]]; return(tmp[,!colnames(tmp) %in% c("x", "y")]) })
+setMethod("extractionMetrics", signature(project="savProject"), function(project) { 
+  tmp <- project@parsedData[["savExtractionFormat"]]
+  if (is.null(tmp)) return(tmp)
+  return(tmp[,!colnames(tmp) %in% c("x", "y")]) 
+})

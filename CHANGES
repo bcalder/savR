@@ -1,3 +1,11 @@
+1.5.3 2014-12-30:
+  
+  General
+    * fixed issue with buildReports related to update of QMetricsOut.bin change from 
+    version 4 to 5. Will now issue warning and not genrate Q>30 plot. Version 5 
+    implementation coming soon.
+      
+
 1.5.1 2014-11-12:
 
   General
