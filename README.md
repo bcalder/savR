@@ -1,10 +1,10 @@
 savR
 ================================
 
-*savR* is an R package to parse Illumina InterOp
+*savR* is an R package to parse Illumina Sequence Analysis Viewer (InterOp)
 files for downstream analysis.
 
-Current release version 1.5.3.
+Current release version 1.5.4.
 
 Example
 --------

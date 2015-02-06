@@ -1,3 +1,12 @@
+1.5.4 2015-02-05
+
+  General
+    * Added support for QMetricsOut.bin v5.
+    * Added ErrorMetricsOut.bin loader and getter
+    * Added clusterQualityGtN method to get the percentage of 
+    clusters that exceed a quality score for given lane
+    and cycles.
+
 1.5.3 2014-12-30:
   
   General

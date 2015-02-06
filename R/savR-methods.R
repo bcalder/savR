@@ -56,7 +56,7 @@ setMethod("plotIntensity", signature(project="savProject", cycle="integer", base
   x <- y <- NULL
   if (cycle < 0)
     stop ("Cycle out of range")
-  data <- project@parsedData[["savCorrectedIntensityFormat"]]
+  data <- project@parsedData[["savCorrectedIntensityFormat"]]@data
   if (is.null(data))
     stop("Corrected Intensity data not available")
   val <- paste("avg_cor_called", c("A", "C", "G", "T"), sep="_") 
@@ -93,7 +93,7 @@ setMethod("plotFWHM", signature(project="savProject", cycle="integer", base="cha
   x <- y <- NULL
   if (cycle < 0)
     stop ("Cycle out of range")
-  data <- project@parsedData[["savExtractionFormat"]]
+  data <- project@parsedData[["savExtractionFormat"]]@data
   if (is.null(data))
     stop("Extraction data not available")
   data <- data[data$cycle==cycle,]
@@ -144,7 +144,7 @@ setMethod("plotQGT30", signature(project="savProject", cycle="integer"), functio
   x <- y <- gte30 <- NULL
   if (cycle < 0)
     stop ("Cycle out of range")
-  data <- project@parsedData[["savQualityFormat"]]
+  data <- project@parsedData[["savQualityFormat"]]@data
   if (is.null(data))
     stop("Quality data not available")
   cycleData <- getFormatQGT30(data, cycle)
@@ -165,7 +165,7 @@ setMethod("plotQGT30", signature(project="savProject", cycle="missing"), functio
 #@aliases pfBoxplot,savProject-method
 setMethod("pfBoxplot", signature("savProject"), function(project) {
   lane <- value <- code <- NULL
-  data <- project@parsedData[["savTileFormat"]]
+  data <- project@parsedData[["savTileFormat"]]@data
   if (is.null(data))
     stop("Tile data not available")
   data <- data[data$code %in% c(100,101),]
@@ -183,7 +183,7 @@ setMethod("pfBoxplot", signature("savProject"), function(project) {
 #@param lane lane
 #@param cycles cycles
 #@return formatted data
-qFormat <- function(data,lane,cycles) {
+qFormat <- function(data,lane,cycles,collapse=T) {
   data <- data[data$lane==lane & data$cycle %in% cycles, ]
   quals <- paste("Q", 1:50, sep="")
   mat <- reshape2::melt(data[,c("cycle",quals)], id=c("cycle"), measured=quals)
@@ -228,14 +228,21 @@ readToCycles <- function(project, read) {
 
 
 #'@rdname qualityHeatmap
-#@aliases qualityHeatmap,savProject,integer,integer-method
-setMethod("qualityHeatmap", signature(project="savProject", lane="integer", read="integer"), function(project, lane, read) {
+#@aliases qualityHeatmap,savProject,integer,integer,logical-method
+setMethod("qualityHeatmap", signature(project="savProject", lane="integer", read="integer", collapse="logical"), function(project, lane, read, collapse=T) {
   y <- z <- ..level.. <- NULL
   plots <- list()
-  if (!all( read %in% 1:directions(project)))
-    stop(paste("There are only", directions(project), "sequence read(s) on this flowcell, check read specification."))
+  nsegments <- directions(project)
+  if (!collapse)
+    nsegments <- length(reads(project))
+  # TODO: collapse segments
+  if (!all( read %in% 1:nsegments))
+    stop(paste("There are only", directions(project), "sequence read(s) and ", length(reads(project)), "total read segments on this flowcell, check read specification."))
+  formatName <- names(project@parsedData)[pmatch("savQualityFormat", names(project@parsedData))]
+  
   for (x in 1:length(read)) {
-    mat <- qFormat(data=project@parsedData[["savQualityFormat"]], lane=lane, cycles=readToCycles(project, read[x]))
+    mat <- qFormat(data=project@parsedData[[formatName]]@data, lane=lane, cycles=readToCycles(project, read[x]), collapse)
+    print(summary(mat))
     plots[[x]] <- ggplot2::ggplot(mat, ggplot2::aes(x=x, y=y, z=z)) + 
       ggplot2::stat_contour(bins=50, geom="polygon", ggplot2::aes(fill=..level..)) + ggplot2::ylim(0,50) + 
       ggplot2::theme_bw() + ggplot2::scale_fill_gradient2(low="white", mid=scales::muted("green"), high="red", midpoint=quantile(mat$z, .99) ) + 
@@ -245,9 +252,8 @@ setMethod("qualityHeatmap", signature(project="savProject", lane="integer", read
 } )
 
 #'@rdname qualityHeatmap
-#@aliases qualityHeatmap,savProject,numeric,numeric-method
-setMethod("qualityHeatmap", signature(project="savProject", lane="numeric", read="numeric"), function(project, lane, read) { qualityHeatmap(project, as.integer(lane), as.integer(read))})
-
+#@aliases qualityHeatmap,savProject,numeric,numeric,missing-method
+setMethod("qualityHeatmap", signature(project="savProject", lane="numeric", read="numeric", collapse="missing"), function(project, lane, read) { qualityHeatmap(project, as.integer(lane), as.integer(read), collapse=TRUE)})
 
 
 #'@rdname buildReports
@@ -356,23 +362,34 @@ setMethod("buildReports", signature(project="savProject", destination="missing")
 #@param format savFormat subclass to define data types
 #@return sorted data.frame of parsed data)
 parseBin <- function(project, format) {
-  path <- normalizePath(paste(project@location, "InterOp", format@filename, sep="/"))
+  path <- getInterOpFilePath(project, format)
   fh <- file(path, "rb")
   vers <- readBin(fh, what="integer", endian="little", size=1, signed=F)
   if (vers != format@version) {
-    # TODO: check for other parsers and handle more than one case
     close(fh)
-    warning(paste("savR currently only supports version", format@version, "of this SAV file.", format@filename, "is reported as version", vers, "."))
+    warning(paste(" the generic savR parser currently only supports version", format@version, "of this SAV file.", format@filename, "is reported as version", vers, "."))
     return(NULL)
   }
   reclen <- readBin(fh, what="integer", endian="little", size=1, signed=F)
   if (reclen != sum(format@lengths))
     stop(paste("file's declared record size (", reclen, ") does not equal formats declared size (", sum(format@lengths), ")"))
+  
+  data.f <- parseBinData(project,format,fh)
+  
+  close(fh)
+  
+  result <- new("savData", header=list(version=vers, record_length=reclen), data=data.f, accessor=format@accessor)
+  
+  return(result)
+} 
+
+parseBinData <- function(project, format, fh) {
   readlen <- 0
   for (x in project@reads) {
     readlen <- readlen + x@cycles
   }
-  proj.size <- project@layout@lanecount * project@layout@surfacecount * project@layout@swathcount * project@layout@tilecount * readlen + 1
+  proj.size <- project@layout@lanecount * project@layout@surfacecount * 
+    project@layout@swathcount * project@layout@tilecount * readlen + 1
   data <- vector("list", proj.size)
   r <- 1
   while (!isIncomplete(fh)) {
@@ -389,19 +406,24 @@ parseBin <- function(project, format) {
     }
     if (length(dat)==0)
       break
-    data[[r]] <- dat
+    if(length(dat) == length(format@lengths)) {
+      data[[r]] <- dat
+    } else {
+      warning(format@filename, " prematurely terminated with incomplete row at ", r)
+      break
+    }
     r <- r + 1
   }
-  data.f <- as.data.frame(do.call("rbind", data))
-  close(fh)
+  # remove NULL rows
+  data.f <- as.data.frame(do.call("rbind", data[!unlist(lapply(data, is.null))] ))
   colnames(data.f) <- format@name
-  
   if (max(data.f[,"lane"]) != project@layout@lanecount)
-    stop(paste("number of lanes in data file ( ", max(data.f[,"lane"]), ") does not equal project configuration value (" + project@layout@lanecount + ")", sep=""))
+    stop(paste("number of lanes in data file ( ", max(data.f[,"lane"]), ") does not equal project configuration value (" 
+               + project@layout@lanecount + ")", sep=""))
   
   data.f <- data.f[do.call(order, as.list(data.f[,format@order])),]
   return(data.f)
-} 
+}
 
 #validParser <- function(object) {
 #  if (length(object@format@name) != length(object@format@type) & length(object@format@type) != length(object@format@size))
@@ -422,6 +444,7 @@ getFlowcellStats <- function(object) {
   retval <- list()
   retval$sides  <- as.numeric(substring(object$tile,1,1))
   retval$swaths <- as.numeric(substring(object$tile,2,2))
+  retval$tiles  <- as.numeric(substring(object$tile,3,4))
   retval$nsides <- as.numeric(length(unique(substring(object$tile,1,1))))
   retval$nswath <- as.numeric(length(unique(substring(object$tile,2,2))))
   retval$ntiles <- as.numeric(substr(max(object$tile),3,4))
@@ -443,9 +466,14 @@ addPosition <- function(data) {
   ### This is an internal method for annotating flowcell data with XY coordinates
   ### used in tile plots of flowcell lanes.
   stats <- getFlowcellStats(data)
+
   return(cbind(data, 
-               x=((data$lane-1)*(stats$nswath*stats$nside)+1)+(stats$swaths-1)+((stats$sides-1)*stats$nsides + (stats$sides-1)), 
-               y=rep(rep(1:stats$ntiles, stats$nswath*stats$nsides*stats$ncycle), stats$nlanes)))
+               x=( (data$lane-1) * (stats$nswath*stats$nside) + 1 ) + 
+                 (stats$swaths-1) + 
+                 ( (stats$sides-1) * stats$nsides + (stats$sides-1) ), 
+               #y=rep(rep(1:stats$ntiles, stats$nswath*stats$nsides*stats$ncycle), stats$nlanes)
+               y=stats$tiles
+               ))
 } 
 
 #Do parsing
@@ -454,14 +482,41 @@ addPosition <- function(data) {
 #
 #@param project SAV project
 init <- function(project) {
-  validFormats <- c("savCorrectedIntensityFormat", "savQualityFormat", "savTileFormat", "savExtractionFormat")
+  validFormats <- c("savCorrectedIntensityFormat", 
+                    "savQualityFormat",
+                    "savQualityFormatV5", 
+                    "savTileFormat", 
+                    "savExtractionFormat",
+                    "savErrorFormat")
+  
+  fileSuccess <- list()
   
   for (x in validFormats) {
     format <- new(x)
-    if (file.exists(normalizePath(paste(project@location, "InterOp", format@filename, sep="/")))) {
-      data <- parseBin(project, format)
+    
+    if (is.null(fileSuccess[[format@filename]])) {
+      fileSuccess[format@filename] <- FALSE
+    }
+    
+    filePath <- suppressWarnings(normalizePath(paste(project@location, "InterOp", format@filename, sep="/") ))
+    
+    if (file.exists(filePath)) {
       
-      # TODO: fix format specific info
+      if (fileSuccess[format@filename] == TRUE || !testVersion(project,format)) next
+
+      parsedData <- NULL
+      data <- NULL
+      
+      if (format@default == T) {
+        parsedData <- parseBin(project, format)
+      } else {
+        f <- get(paste("parse", x, sep=""))
+        parsedData <- f(project, format)
+      }
+
+      fileSuccess[format@filename] <- TRUE      
+      
+      data <- parsedData@data
       
       if (!is.null(data)) {
         # don't add position data to tiles
@@ -472,30 +527,104 @@ init <- function(project) {
           data <- data[,-c(12:13)]
       }
       
-      project@parsedData[[x]] <- data
+      parsedData@data <- data
+      
+      project@parsedData[[x]] <- parsedData
     }
   }
   return(project)
 } 
 
-#'@rdname clusters
-#@aliases clusters,savProject,integer
-setMethod("clusters", signature(project="savProject", lane="integer"), function(project, lane=1L) {
-  if (!all(lane %in% 1:flowcellLayout(project)@lanecount)) {
-    stop(paste("lane" , lane, "is not consistent with number of lanes on flowcell (", flowcellLayout(project)@lanecount, ")", sep=" "))
+#
+# test the version of the file against the formatter
+testVersion <- function(project, format) {
+  matched <- FALSE
+  path <- normalizePath(paste(project@location, "InterOp", format@filename, sep="/"))
+  fh <- file(path, "rb")
+  vers <- readBin(fh, what="integer", endian="little", size=1, signed=F)
+  close(fh)
+  if (vers == format@version) {
+    matched <- TRUE 
   }
-  tm <- tileMetrics(project)
-  return(sum(tm[tm$lane %in% lane & tm$code==102,]$value))
-})
+  return(matched)
+}
 
-#'@rdname pfClusters
-#@aliases pfClusters,savProject,integer
-setMethod("pfClusters", signature(project="savProject", lane="integer"), function(project, lane=1L) {
-  if (!all(lane %in% 1:flowcellLayout(project)@lanecount)) {
-    stop(paste("lane" , lane, "is not consistent with number of lanes on flowcell (", flowcellLayout(project)@lanecount, ")", sep=" "))
+getInterOpFilePath <- function(project, format) {
+  return(normalizePath(paste(project@location, "InterOp", format@filename, sep="/")))
+}
+
+#
+# taken from: https://tracker.tgac.ac.uk/browse/MISO-138
+# 
+# Quality Metrics (QMetricsOut.bin)
+# Format:
+#  byte 0: file version number (5)
+#  byte 1: length of each record
+#  byte 2: quality score binning (byte flag representing if binning was on), if (byte 2 == 1) // quality score binning on
+#  byte 3: number of quality score bins, B
+#  bytes 4 - (4+B-1): lower boundary of quality score bins
+#  bytes (4+B) - (4+2*B-1): upper boundary of quality score bins
+#  bytes (4+2*B) - (4+3*B-1): remapped scores of quality score bins
+# The remaining bytes are for the records, with each record in this format:
+#  2 bytes: lane number  (uint16)
+#  2 bytes: tile number  (uint16)
+#  2 bytes: cycle number (uint16)
+#  4 x 50 bytes: number of clusters assigned score (uint32) Q1 through Q50
+# Where N is the record index
+#
+#
+# variable length header SAV Quality Formatter (version 5)
+parsesavQualityFormatV5 <- function(project, format) {
+  path <- getInterOpFilePath(project,format)
+  fh <- file(path, "rb")
+  vers <- readBin(fh, what="integer", endian="little", size=1, signed=F)
+  reclen <- readBin(fh, what="integer", endian="little", size=1, signed=F)
+  binning <- readBin(fh, what="integer", endian="little", size=1, signed=F)
+  nBins <- readBin(fh, what="integer", endian="little", size=1, signed=F)
+  
+  lowB <- c()
+  upB <- c()
+  remapB <- c()
+  
+  for (x in 1:nBins) {
+    lowB <- c(lowB, readBin(fh, what="integer", endian="little", size=1, signed=F))
   }
-  tm <- tileMetrics(project)
-  return(sum(tm[tm$lane %in% lane & tm$code==103,]$value))
+  for (x in 1:nBins) {
+    upB <- c(upB, readBin(fh, what="integer", endian="little", size=1, signed=F))
+  }
+  for (x in 1:nBins) {
+    remapB <- c(remapB, readBin(fh, what="integer", endian="little", size=1, signed=F))
+  }
+  
+  # end header processing
+  
+  parsedData <- new("savData", 
+                    header=list(version=vers, record_length=reclen, binning=binning, nBins=nBins,
+                                           lowBound=lowB, upperBound=upB, remappedScores=remapB),
+                    data=parseBinData(project,format,fh),
+                    accessor=format@accessor)
+  
+  close(fh)
+  
+  return(parsedData)
+  
+}
+
+#'@rdname clusterQualityGtN
+#'@aliases clusterQualityGtN,savProject,integer,integer,integer
+setMethod("clusterQualityGtN", signature(project="savProject", lane="integer", cycle="integer", n="integer"),
+          function(project, lane, cycle, n=30L) {
+            if (!all(lane %in% 1:flowcellLayout(project)@lanecount)) {
+              stop(paste("lane" , lane, "is not consistent with number of lanes on flowcell (", flowcellLayout(project)@lanecount, ")", sep=" "))
+            }
+            qm <- qualityMetrics(project)
+            qm <- qm[qm$lane == lane,]
+            if (!all(cycle %in% 1:max(qm$cycle))) {
+              stop(paste("cycles" , cycle, "is not consistent with number of cycles (", max(qm@cycle), ")", sep=" "))
+            }
+            qm <- qm[qm$cycle %in% cycle, paste("Q", 1:50, sep="")]
+            
+            tot <- sum(qm)
+            
+            return(sum(qm[,paste("Q", n:50, sep="")])/tot)
 })
-
-

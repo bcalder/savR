@@ -28,6 +28,16 @@ setClass("illuminaFlowCellLayout", slots=c(lanecount="integer",
                                            swathcount="integer", 
                                            tilecount="integer"))
 
+#'Structure for holding parsed InterOp headers and data
+#'
+#'@section Slots:
+#'\describe{
+#'\item{\code{header}:}{list of parsed header values}
+#'\item{\code{data}:}{data.frame of parsed values}
+#'}
+setClass("savData", slots=c(header="list", data="data.frame", accessor="character"),
+         prototype=prototype(header=list(), data=NULL, accessor=NULL))
+
 #'SAV project class
 #' 
 #'Represents a flowcell, metadata and parsed SAV information
@@ -72,13 +82,16 @@ setClass("savProject",
 #'\item{\code{lengths}:}{vector of byte lengths for each element}
 #'\item{\code{order}:}{vector of column names for sorting}
 #'\item{\code{version}:}{integer version number}
+#'\item{\code{default}:}{logical default format ()}
 #'}
 setClass("savFormat", slots=c(filename="character", 
                               name="character", 
                               type="character", 
                               lengths="integer", 
                               order="character", 
-                              version="integer"))
+                              version="integer",
+                              accessor="character",
+                              default="logical"))
 
 #'Corrected Intensity formatter
 #'
@@ -103,7 +116,9 @@ setClass("savCorrectedIntensityFormat", contains="savFormat",
                              type=c(rep("integer", 17), "numeric"),
                              lengths=c(rep(2L,12), rep(4L, 6)),
                              order=c("lane", "cycle", "tile"),
-                             version=2L))
+                             version=2L,
+                             accessor="correctedIntensities",
+                             default=TRUE))
 
 #'Quality Metrics formatter
 #'
@@ -123,7 +138,50 @@ setClass("savQualityFormat", contains="savFormat",
                              type=c(rep("integer", 53)),
                              lengths=c(rep(2L, 3), rep(4L, 50) ),
                              order=c("lane", "cycle", "tile"),
-                             version=4L))
+                             version=4L,
+                             accessor="qualityMetrics",
+                             default=TRUE))
+
+
+#'Quality Metrics formatter version 5
+#'
+#'Lane, tile, cycle, Q1-Q50 counts
+#'
+#'@section Slots:
+#'\describe{
+#'\item{\code{name}:}{vector of column names}
+#'\item{\code{type}:}{vector of data types of elements}
+#'\item{\code{lengths}:}{vector of byte lengths for each element}
+#'\item{\code{order}:}{vector of column names for sorting}
+#'\item{\code{version}:}{integer version number}
+#'}
+#'
+# Format information found at https://tracker.tgac.ac.uk/browse/MISO-138
+# Quality Metrics (QMetricsOut.bin)
+# Format:
+# byte 0: file version number (5)
+# byte 1: length of each record
+# byte 2: quality score binning (byte flag representing if binning was on), if (byte 2 == 1) // quality score binning on
+# byte 3: number of quality score bins, B
+# bytes 4 - (4+B-1): lower boundary of quality score bins
+# bytes (4+B) - (4+2*B-1): upper boundary of quality score bins
+# bytes (4+2*B) - (4+3*B-1): remapped scores of quality score bins
+# The remaining bytes are for the records, with each record in this format:
+## THIS APPEARS TO BE INCORRECT FOR THE INPUT FILES WE HAVE
+# 2 bytes: lane number  (uint16)
+# 2 bytes: tile number  (uint16)
+# 2 bytes: cycle number (uint16)
+# 4 x 50 bytes: number of clusters assigned score (uint32) Q1 through Q50
+# Where N is the record index
+setClass("savQualityFormatV5", contains="savFormat", 
+         prototype=prototype(filename="QMetricsOut.bin", 
+                             name=c("cycle", paste("Q", 1:50, sep=""), "lane", "tile"),
+                             type=c(rep("integer", 53)),
+                             lengths=c(2L, rep(4L, 50), 2L, 2L),
+                             order=c("lane", "cycle", "tile"),
+                             accessor="qualityMetrics",
+                             version=5L,
+                             default=FALSE))
 
 #'Tile Metrics formatter
 #'
@@ -143,7 +201,7 @@ setClass("savQualityFormat", contains="savFormat",
 #'\item{\code{type}:}{vector of data types of elements}
 #'\item{\code{lengths}:}{vector of byte lengths for each element}
 #'\item{\code{order}:}{vector of column names for sorting}
-#'\item{\code{version}:}{integer version number}
+#'\item{\code{version}:}{integer version number (header consists of version (1b), length (1b))}
 #'}
 setClass("savTileFormat", contains="savFormat", 
          prototype=prototype(filename="TileMetricsOut.bin", 
@@ -151,7 +209,9 @@ setClass("savTileFormat", contains="savFormat",
                              type=c(rep("integer", 3), "numeric"),
                              lengths=c(rep(2L, 3), 4L),
                              order=c("lane", "code", "tile"),
-                             version=2L))
+                             version=2L,
+                             accessor="tileMetrics",
+                             default=TRUE))
 
 #'Extraction Metrics formatter
 #'
@@ -170,11 +230,38 @@ setClass("savTileFormat", contains="savFormat",
 #'}
 setClass("savExtractionFormat", contains="savFormat", 
          prototype=prototype(filename="ExtractionMetricsOut.bin", 
-                             name=c("lane", "tile", "cycle", paste("FWHM", c("A", "C", "G", "T"), sep="_"), paste("int", c("A", "C", "G", "T"), sep="_"), "datestamp", "timestamp"),
+                             name=c("lane", "tile", "cycle", 
+                                    paste("FWHM", c("A", "C", "G", "T"), sep="_"), 
+                                    paste("int", c("A", "C", "G", "T"), sep="_"), "datestamp", "timestamp"),
                              type=c(rep("integer", 3), rep("numeric", 4), rep("integer", 6)),
                              lengths=c(rep(2L, 3), rep(4L,4), rep(2L,4), rep(4L,2) ),
                              order=c("lane", "cycle", "tile"),
-                             version=2L))
+                             version=2L,
+                             accessor="extractionMetrics",
+                             default=TRUE))
+
+#'Error Metrics formatter
+#'
+#'Lane, tile, cycle, errorrate, nPerfect, n1Error, n2Error,
+#'n3Error, n4Error.
+#'
+#'@section Slots:
+#'\describe{
+#'\item{\code{name}:}{vector of column names}
+#'\item{\code{type}:}{vector of data types of elements}
+#'\item{\code{lengths}:}{vector of byte lengths for each element}
+#'\item{\code{order}:}{vector of column names for sorting}
+#'\item{\code{version}:}{integer version number}
+#'}
+setClass("savErrorFormat", contains="savFormat",
+         prototype=prototype(filename="ErrorMetricsOut.bin",
+                             name=c("lane", "tile", "cycle", "errorrate", "nPerfect", paste("n", 1:4, "Error", sep="")),
+                             type=c(rep("integer", 3), "numeric", rep("integer", 5)),
+                             lengths=c(rep(2L, 3), rep(4L, 6)),
+                             order=c("lane", "cycle", "tile"),
+                             version=3L,
+                             accessor="errorMetrics",
+                             default=TRUE))
 
 setClass("savParser", slots=c(project="savProject", format="savFormat"))
 

@@ -25,7 +25,7 @@ setMethod("directions", signature(project="savProject"), function(project) proje
 #'@rdname correctedIntensities
 #'@aliases correctedIntensities,savProject-method
 setMethod("correctedIntensities", signature(project="savProject"), function(project) { 
-  tmp <- project@parsedData[["savCorrectedIntensityFormat"]]
+  tmp <- project@parsedData[["savCorrectedIntensityFormat"]]@data
   if (is.null(tmp)) return(tmp)
   return(tmp[,!colnames(tmp) %in% c("x", "y")]) 
 })
@@ -33,7 +33,7 @@ setMethod("correctedIntensities", signature(project="savProject"), function(proj
 #'@rdname qualityMetrics
 #'@aliases qualityMetrics,savProject-method
 setMethod("qualityMetrics", signature(project="savProject"), function(project) { 
-  tmp <- project@parsedData[["savQualityFormat"]]
+  tmp <- project@parsedData[["savQualityFormat"]]@data
   if (is.null(tmp)) return(tmp)
   return(tmp[,!colnames(tmp) %in% c("x", "y")]) 
 })
@@ -41,14 +41,42 @@ setMethod("qualityMetrics", signature(project="savProject"), function(project) {
 #'@rdname tileMetrics
 #'@aliases tileMetrics,savProject-method
 setMethod("tileMetrics", signature(project="savProject"), function(project) {
-  tmp <- project@parsedData[["savTileFormat"]]
+  tmp <- project@parsedData[["savTileFormat"]]@data
   return(tmp)
 })
 
 #'@rdname extractionMetrics
 #'@aliases extractionMetrics,savProject-method
 setMethod("extractionMetrics", signature(project="savProject"), function(project) { 
-  tmp <- project@parsedData[["savExtractionFormat"]]
+  tmp <- project@parsedData[["savExtractionFormat"]]@data
   if (is.null(tmp)) return(tmp)
   return(tmp[,!colnames(tmp) %in% c("x", "y")]) 
+})
+
+#'@rdname errorMetrics
+#'@aliases errorMetrics,savProject-method
+setMethod("errorMetrics", signature(project="savProject"), function(project) {
+  tmp <- project@parsedData[["savErrorFormat"]]@data
+  if (is.null(tmp)) return(tmp)
+  return(tmp[,!colnames(tmp) %in% c("x", "y")])
+})
+
+#'@rdname clusters
+#@aliases clusters,savProject,integer
+setMethod("clusters", signature(project="savProject", lane="integer"), function(project, lane=1L) {
+  if (!all(lane %in% 1:flowcellLayout(project)@lanecount)) {
+    stop(paste("lane" , lane, "is not consistent with number of lanes on flowcell (", flowcellLayout(project)@lanecount, ")", sep=" "))
+  }
+  tm <- tileMetrics(project)
+  return(sum(tm[tm$lane %in% lane & tm$code==102,]$value))
+})
+
+#'@rdname pfClusters
+#'@aliases pfClusters,savProject,integer
+setMethod("pfClusters", signature(project="savProject", lane="integer"), function(project, lane=1L) {
+  if (!all(lane %in% 1:flowcellLayout(project)@lanecount)) {
+    stop(paste("lane" , lane, "is not consistent with number of lanes on flowcell (", flowcellLayout(project)@lanecount, ")", sep=" "))
+  }
+  tm <- tileMetrics(project)
+  return(sum(tm[tm$lane %in% lane & tm$code==103,]$value))
 })

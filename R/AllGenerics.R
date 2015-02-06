@@ -201,6 +201,30 @@ setGeneric("tileMetrics", function(project) standardGeneric("tileMetrics"))
 #'colnames(extractionMetrics(fc))
 setGeneric("extractionMetrics", function(project) standardGeneric("extractionMetrics"))
 
+
+#'Get Error Metrics
+#'
+#'Error metrics for lane, tile, and cycle.
+#'
+#' \describe{
+#'  \item{\code{lane}:}{Lane number}
+#'  \item{\code{tile}:}{Tile ID}
+#'  \item{\code{cycle}:}{Cycle number}
+#'  \item{\code{errorrate}:}{Error rate}
+#'  \item{\code{nPerfect}:}{number of perfect reads}
+#'  \item{\code{n[1-4]Error}:}{Number of reads with 1, 2, 3 and 4 errors}
+#' }
+#'
+#'
+#'@param project SAV project
+#'@return sorted data.frame of Error metrics
+#'@export
+#'@rdname errorMetrics
+#'@examples
+#'example(savR)
+#'colnames(extractionMetrics(fc))
+setGeneric("errorMetrics", function(project) standardGeneric("errorMetrics"))
+
 #'Plot flowcell intensity by base and cycle
 #' 
 #'Draws a representation of a flowcell, showing the average corrected called intensity values.
@@ -257,10 +281,11 @@ setGeneric("pfBoxplot", function(project) standardGeneric("pfBoxplot"))
 #'@param project SAV project
 #'@param lane integer lane specification
 #'@param read integer vector of sequence reads to include (not including index reads)
+#'@param collapse whether or not to collapse index reads into the preceeding read (# reads = directions), default TRUE
 #'@export
 #'@docType methods
 #'@rdname qualityHeatmap
-setGeneric("qualityHeatmap", function(project, lane, read) standardGeneric("qualityHeatmap") )
+setGeneric("qualityHeatmap", function(project, lane, read, collapse) standardGeneric("qualityHeatmap") )
 
 #'Generate Illumina reports folder
 #'
@@ -310,3 +335,22 @@ setGeneric("clusters", function(project, lane) standardGeneric("clusters"))
 #'pfClusters(fc, 1L)
 #'} 
 setGeneric("pfClusters", function(project, lane) standardGeneric("pfClusters"))
+
+#'Get the proportion of clusters over a specified quality threshold 
+#'
+#'Return the ratio of clusters with a quality score less than or equal to 
+#'a specified value (n) for the requested lanes and cycles.
+#'
+#'@param project SAV project
+#'@param lane lane(s) number
+#'@param cycle cycle(s) number
+#'@param n quality threshold
+#'@export
+#'@docType methods
+#'@rdname clusterQualityGtN
+#'@examples
+#'\dontrun{
+#'example(savR)
+#'clusterQualityGtN(fc, 1L, 25L, 30L)
+#'}
+setGeneric("clusterQualityGtN", function(project, lane, cycle, n) standardGeneric("clusterQualityGtN"))
