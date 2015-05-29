@@ -242,7 +242,6 @@ setMethod("qualityHeatmap", signature(project="savProject", lane="integer", read
   
   for (x in 1:length(read)) {
     mat <- qFormat(data=project@parsedData[[formatName]]@data, lane=lane, cycles=readToCycles(project, read[x]), collapse)
-    print(summary(mat))
     plots[[x]] <- ggplot2::ggplot(mat, ggplot2::aes(x=x, y=y, z=z)) + 
       ggplot2::stat_contour(bins=50, geom="polygon", ggplot2::aes(fill=..level..)) + ggplot2::ylim(0,50) + 
       ggplot2::theme_bw() + ggplot2::scale_fill_gradient2(low="white", mid=scales::muted("green"), high="red", midpoint=quantile(mat$z, .99) ) + 
