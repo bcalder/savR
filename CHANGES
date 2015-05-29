@@ -1,6 +1,7 @@
-1.7.1 2015-02-05
+1.7.2 2015-02-05
 
     * bug fixes
+    * better handling of truncated InterOp files
 
 1.5.4 2015-02-05
 

@@ -376,8 +376,6 @@ parseBin <- function(project, format) {
   
   data.f <- parseBinData(project,format,fh)
   
-  close(fh)
-  
   result <- new("savData", header=list(version=vers, record_length=reclen), data=data.f, accessor=format@accessor)
   
   return(result)
@@ -419,7 +417,7 @@ parseBinData <- function(project, format, fh) {
   colnames(data.f) <- format@name
   if (max(data.f[,"lane"]) != project@layout@lanecount)
     stop(paste("number of lanes in data file ( ", max(data.f[,"lane"]), ") does not equal project configuration value (", 
-      project@layout@lanecount, ")", sep=""))
+      project@layout@lanecount, ") when parsing ", format@filename, sep=""))
   
   data.f <- data.f[do.call(order, as.list(data.f[,format@order])),]
   return(data.f)
@@ -506,15 +504,26 @@ init <- function(project) {
 
       parsedData <- NULL
       data <- NULL
+      success <- FALSE
       
-      if (format@default == T) {
-        parsedData <- parseBin(project, format)
-      } else {
-        f <- get(paste("parse", x, sep=""))
-        parsedData <- f(project, format)
-      }
-
-      fileSuccess[format@filename] <- TRUE      
+      tryCatch({
+        if (format@default == T) {
+          parsedData <- parseBin(project, format)
+        } else {
+          f <- get(paste("parse", x, sep=""))
+          parsedData <- f(project, format)
+        }
+        success <- TRUE
+      },
+      error = function(e) {
+        warning("Unable to parse binary data: ", geterrmessage())
+      },
+      finally = {
+      })
+      
+      if (success == FALSE) next
+      
+      fileSuccess[format@filename] <- success      
       
       data <- parsedData@data
       
