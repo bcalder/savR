@@ -376,6 +376,8 @@ parseBin <- function(project, format) {
   
   data.f <- parseBinData(project,format,fh)
   
+  close(fh)
+  
   result <- new("savData", header=list(version=vers, record_length=reclen), data=data.f, accessor=format@accessor)
   
   return(result)
