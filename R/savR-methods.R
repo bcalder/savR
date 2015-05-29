@@ -416,8 +416,9 @@ parseBinData <- function(project, format, fh) {
   # remove NULL rows
   data.f <- as.data.frame(do.call("rbind", data[!unlist(lapply(data, is.null))] ))
   colnames(data.f) <- format@name
-  if (length(unique(data.f[,"lane"])) != project@layout@lanecount)
-    stop(paste("number of lanes in data file (", max(data.f[,"lane"]), ") does not equal project configuration value (", 
+  actnum <- length(unique(data.f[,"lane"]))
+  if (actnum != project@layout@lanecount)
+    stop(paste("number of lanes in data file (", actnum, ") does not equal project configuration value (", 
       project@layout@lanecount, ") when parsing ", format@filename, sep=""))
   
   data.f <- data.f[do.call(order, as.list(data.f[,format@order])),]
