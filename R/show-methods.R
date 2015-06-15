@@ -4,6 +4,10 @@ setMethod("show", "savProject", function(object) cat(class(object), "instance wi
                                                      length(reads(object)), "sequence reads (",
                                                      object@directions, "sequencing and ",
                                                      length(reads(object))-object@directions, "indexed reads ).\n",
+                                                     if(object@layout@tilenamingconvention != "") { 
+                                                       paste("Indicated tile naming convention: ",
+                                                             object@layout@tilenamingconvention, ".\n", sep="")} else
+                                                               {"Default naming convention.\n"},
                                                      "With InterOp data for:", 
                                                      paste(" ", names(object@parsedData), 
                                                            " (", 

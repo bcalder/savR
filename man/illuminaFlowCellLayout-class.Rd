@@ -14,6 +14,9 @@ Class representation of the features of an Illumina flow cell.
 \item{\code{surfacecount}:}{Number of surfaces}
 \item{\code{swathcount}:}{Number of imaging swaths}
 \item{\code{tilecount}:}{Number of tiles per swath}
+\item{\code{sectionperlane}:}{Number of sections per lane (NextSeq)}
+\item{\code{lanepersection}:}{Number of lanes per section (NextSeq)}
+\item{\code{tilenamingconvention}:}{Description of deviation from original formatting layout}
 }
 }
 
