@@ -22,11 +22,18 @@ setClass("illuminaRead",   slots=c(number="integer",
 #'\item{\code{surfacecount}:}{Number of surfaces}
 #'\item{\code{swathcount}:}{Number of imaging swaths}
 #'\item{\code{tilecount}:}{Number of tiles per swath}
+#'\item{\code{sectionperlane}:}{Number of sections per lane (NextSeq)}
+#'\item{\code{lanepersection}:}{Number of lanes per section (NextSeq)}
+#'\item{\code{tilenamingconvention}:}{Description of deviation from original formatting layout}
 #'}
 setClass("illuminaFlowCellLayout", slots=c(lanecount="integer", 
                                            surfacecount="integer", 
                                            swathcount="integer", 
-                                           tilecount="integer"))
+                                           tilecount="integer",
+                                           sectionperlane="integer",
+                                           lanepersection="integer",
+                                           tilenamingconvention="character"
+                                           ))
 
 #'Structure for holding parsed InterOp headers and data
 #'
@@ -163,11 +170,11 @@ setClass("savQualityFormat", contains="savFormat",
 # byte 1: length of each record
 # byte 2: quality score binning (byte flag representing if binning was on), if (byte 2 == 1) // quality score binning on
 # byte 3: number of quality score bins, B
-# bytes 4 - (4+B-1): lower boundary of quality score bins
-# bytes (4+B) - (4+2*B-1): upper boundary of quality score bins
-# bytes (4+2*B) - (4+3*B-1): remapped scores of quality score bins
+# // if byte 2 == 1
+#   bytes 4 - (4+B-1): lower boundary of quality score bins
+#   bytes (4+B) - (4+2*B-1): upper boundary of quality score bins
+#   bytes (4+2*B) - (4+3*B-1): remapped scores of quality score bins
 # The remaining bytes are for the records, with each record in this format:
-## THIS APPEARS TO BE INCORRECT FOR THE INPUT FILES WE HAVE
 # 2 bytes: lane number  (uint16)
 # 2 bytes: tile number  (uint16)
 # 2 bytes: cycle number (uint16)
@@ -175,9 +182,9 @@ setClass("savQualityFormat", contains="savFormat",
 # Where N is the record index
 setClass("savQualityFormatV5", contains="savFormat", 
          prototype=prototype(filename="QMetricsOut.bin", 
-                             name=c("cycle", paste("Q", 1:50, sep=""), "lane", "tile"),
+                             name=c("lane", "tile", "cycle", paste("Q", 1:50, sep="") ),
                              type=c(rep("integer", 53)),
-                             lengths=c(2L, rep(4L, 50), 2L, 2L),
+                             lengths=c(2L, 2L, 2L, rep(4L, 50)),
                              order=c("lane", "cycle", "tile"),
                              accessor="qualityMetrics",
                              version=5L,

@@ -29,7 +29,7 @@ test_that("Load sample MiSeq data and check values", {
 test_that("Load sample HiSeq RapidRun (QMetricsOut.bin v5) data and check values", {
   skip_on_cran()
   data_available()
-  expect_warning(fc <- savR("../data/BHF5GNADXX"), regexp = "incomplete row", label = "load RapidRun with truncated QMetricsOut.bin v5")
+  fc <- savR("../data/BHF5GNADXX")
   expect_equivalent(run(fc)["Id"], "150115_SN7001401_0253_BHF5GNADXX", label = "FCID check")
   expect_equal(cycles(fc), 209, label = "cycle count")
   expect_equal(directions(fc), 2, label = "directions")
@@ -50,4 +50,9 @@ test_that("Load problematic flowcell", {
                  label="load truncated ErrorMetrics")
 })
 
-
+test_that("Load NextSeq500 flowcell", {
+  skip_on_cran()
+  data_available()
+  fc <- savR("../data/NextSeq")
+  expect_equivalent(run(fc)["Id"], "150602_NEXTSEQ1_0018_H2LGHAFXX", label = "FCID check")
+})
