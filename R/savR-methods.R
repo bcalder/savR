@@ -611,6 +611,7 @@ parsesavQualityFormatV5 <- function(project, format) {
   lowB <- c()
   upB <- c()
   remapB <- c()
+  nBins <- 0
  
   if (binning == 1) { 
     nBins <- readBin(fh, what="integer", endian="little", size=1, signed=F)
