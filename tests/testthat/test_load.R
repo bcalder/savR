@@ -56,3 +56,10 @@ test_that("Load NextSeq500 flowcell", {
   fc <- savR("../data/NextSeq")
   expect_equivalent(run(fc)["Id"], "150602_NEXTSEQ1_0018_H2LGHAFXX", label = "FCID check")
 })
+
+test_that("Load v5 qmetrics", {
+  skip_on_cran()
+  data_available()
+  fc <- savR("../data/BC5CAHACXX")
+  expect_true("savQualityFormatV5" %in% names(fc@parsedData), "loading savQualityFormatV5")
+})
