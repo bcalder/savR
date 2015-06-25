@@ -570,6 +570,10 @@ testVersion <- function(project, format) {
   fh <- file(path, "rb")
   vers <- readBin(fh, what="integer", endian="little", size=1, signed=F)
   close(fh)
+  if (length(vers) == 0) {
+    warning(paste("Unable to determine file version: empty", format@filename, "binary file?", sep=" "))
+    vers <- -1
+  }
   if (vers == format@version) {
     matched <- TRUE 
   }
