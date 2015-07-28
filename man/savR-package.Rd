@@ -11,7 +11,7 @@ Parse Illumina Sequence Analysis Viewer files
 \tabular{ll}{
 Package: \tab savR \cr
 Type: \tab Package \cr
-Version: \tab 1.7.4 \cr
+Version: \tab 1.7.5 \cr
 Date: \tab 2015-06-15 \cr
 License: \tab AGPL-3 \cr
 LazyLoad: \tab yes \cr
