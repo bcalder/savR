@@ -48,11 +48,10 @@ test_that("Load sample MiSeq with ErrorMetricsOut.bin", {
   expect_equal(dim(errorMetrics(fc)), c(700, 9))
 })
 
-test_that("Load problematic flowcell", {
+test_that("Load ErrorMetrics with unreported lanes", {
   skip_on_cran()
   data_available()
-  expect_warning(fc <- savR("../data/AC5J04ACXX"), regexp = "Unable to parse binary data: number of lanes in data file",
-                 label="load truncated ErrorMetrics")
+  fc <- savR("../data/AC5J04ACXX")
 })
 
 test_that("Load NextSeq500 flowcell", {
