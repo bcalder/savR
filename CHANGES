@@ -1,3 +1,7 @@
+1.7.5 2015-07-28
+
+    * fixed issue with error metrics parsing
+
 1.7.3 2015-06-15
 
     * basic support for NextSeq and multi-camera flowcell reads
