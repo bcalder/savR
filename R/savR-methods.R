@@ -433,10 +433,12 @@ parseBinData <- function(project, format, fh) {
   data.f <- as.data.frame(do.call("rbind", data[!unlist(lapply(data, is.null))] ))
   colnames(data.f) <- format@name
   actnum <- length(unique(data.f[,"lane"]))
-  if (actnum != project@layout@lanecount)
+  if (format@filename == "ErrorMetricsOut.bin") {
+    # no consistent way to determine which lanes were called?
+  } else if (actnum != project@layout@lanecount) {
     stop(paste("number of lanes in data file (", actnum, ") does not equal project configuration value (", 
       project@layout@lanecount, ") when parsing ", format@filename, sep=""))
-  
+  }
   data.f <- data.f[do.call(order, as.list(data.f[,format@order])),]
   return(data.f)
 }
