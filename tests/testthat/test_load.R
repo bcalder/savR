@@ -36,6 +36,11 @@ test_that("Load sample HiSeq RapidRun (QMetricsOut.bin v5) data and check values
   expect_equal(clusters(fc,1L), 184790371, label="clusters")
 })
 
+test_that("Load empty qmetrics file", {
+  data_available()
+  expect_warning(fc <- savR("../data/EMPTY"), regexp="Unable to determine", label="Empty binary file")
+})
+
 test_that("Load sample MiSeq with ErrorMetricsOut.bin", {
   skip_on_cran()
   data_available()
