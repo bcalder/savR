@@ -249,6 +249,11 @@ setMethod("qualityHeatmap", signature(project="savProject", lane="integer", read
 		stop(paste("There are only", directions(project), "sequence read(s) and ", length(reads(project)), "total read segments on this flowcell, check read specification."))
 	formatName <- names(project@parsedData)[pmatch("savQualityFormat", names(project@parsedData))]
 	
+	#Hotfix to not run on v6. Remove this when code is fixed for v6.
+	if(formatName == "savQualityFormatV6"){
+		stop("v6 of QMetricsOut.bin is not supported yet in qualityHeatmap()")
+	}
+	
 	for (x in 1:length(read)) {
 		mat <- qFormat(data=project@parsedData[[formatName]]@data, lane=lane, cycles=readToCycles(project, read[x]), collapse)
 		plots[[x]] <- ggplot2::ggplot(mat, ggplot2::aes(x=x, y=y, z=z)) + 
@@ -638,7 +643,7 @@ parsesavQualityFormatV5 <- function(project, format) {
 	
 	parsedData <- new("savData", 
 										header=list(version=vers, record_length=reclen, binning=binning, nBins=nBins,
-																					 lowBound=lowB, upperBound=upB, remappedScores=remapB),
+										lowBound=lowB, upperBound=upB, remappedScores=remapB),
 										data=parseBinData(project,format,fh),
 										accessor=format@accessor)
 	
@@ -760,7 +765,15 @@ setMethod("clusterQualityGtN", signature(project="savProject", lane="integer", c
 						if (!all(lane %in% 1:flowcellLayout(project)@lanecount)) {
 							stop(paste("lane" , lane, "is not consistent with number of lanes on flowcell (", flowcellLayout(project)@lanecount, ")", sep=" "))
 						}
+						
+						formatName <- names(project@parsedData)[pmatch("savQualityFormat", names(project@parsedData))]
+						#Hotfix to not run on v6. Remove this when code is fixed for v6.
+						if(formatName == "savQualityFormatV6"){
+							stop("v6 of QMetricsOut.bin is not supported yet in clusterQualityGtN()")
+						}
+						
 						qm <- qualityMetrics(project)
+						
 						qm <- qm[qm$lane == lane,]
 						if (!all(cycle %in% 1:max(qm$cycle))) {
 							stop(paste("cycles" , cycle, "is not consistent with number of cycles (", max(qm@cycle), ")", sep=" "))

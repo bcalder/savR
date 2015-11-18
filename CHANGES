@@ -1,3 +1,10 @@
+1.8.0 2015-11-18
+
+    * Added support for loading QMetricsOut.bin v6. Will still need to
+    update other methods to deal with different quality binning. qualityHeatmap(),
+    clusterQualityGtN() and qFormat() are definitely broken for v6 files.
+    * Began to add index support, currently commented out
+
 1.7.6 2015-11-13
 
     * fixed issue qualityMetrics()
