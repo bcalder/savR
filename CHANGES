@@ -1,3 +1,6 @@
+1.8.1 2016-01-06
+    * Merged contributions from https://github.com/ploverso-pgdx
+
 1.8.0 2015-11-18
 
     * Added support for loading QMetricsOut.bin v6. Will still need to
