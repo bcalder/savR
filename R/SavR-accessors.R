@@ -38,9 +38,11 @@ setMethod("qualityMetrics", signature(project="savProject"), function(project) {
 		tmp <- project@parsedData[["savQualityFormat"]]@data
 	}else if("savQualityFormatV5" %in% names(project@parsedData)){
 		tmp <- project@parsedData[["savQualityFormatV5"]]@data
+	}else if("savQualityFormatV6" %in% names(project@parsedData)){
+		tmp <- project@parsedData[["savQualityFormatV6"]]@data
 	}
 	if (is.null(tmp)) return(tmp)
-	return(tmp[,!colnames(tmp) %in% c("x", "y")])
+	return(tmp[,!colnames(tmp) %in% c("x", "y")]) 
 })
 
 #'@rdname tileMetrics

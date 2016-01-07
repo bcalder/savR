@@ -190,6 +190,47 @@ setClass("savQualityFormatV5", contains="savFormat",
                              version=5L,
                              default=FALSE))
 
+#'Quality Metrics formatter version 6
+#'
+#'Lane, tile, cycle, Q1-Q50 counts
+#'
+#'@section Slots:
+#'\describe{
+#'\item{\code{name}:}{vector of column names}
+#'\item{\code{type}:}{vector of data types of elements}
+#'\item{\code{lengths}:}{vector of byte lengths for each element}
+#'\item{\code{order}:}{vector of column names for sorting}
+#'\item{\code{version}:}{integer version number}
+#'}
+#'
+# Format information found at https://tracker.tgac.ac.uk/browse/MISO-138
+# Quality Metrics (QMetricsOut.bin)
+# Format:
+# byte 0: file version number (6)
+# byte 1: length of each record
+# byte 2: quality score binning (byte flag representing if binning was on), if (byte 2 == 1) // quality score binning on
+# byte 3: number of quality score bins, B
+# // if byte 2 == 1
+#   bytes 4 - (4+B-1): lower boundary of quality score bins
+#   bytes (4+B) - (4+2*B-1): upper boundary of quality score bins
+#   bytes (4+2*B) - (4+3*B-1): remapped scores of quality score bins
+# The remaining bytes are for the records, with each record in this format:
+# 2 bytes: lane number  (uint16)
+# 2 bytes: tile number  (uint16)
+# 2 bytes: cycle number (uint16)
+# 4 x B bytes: number of clusters assigned score (uint32) Q1 through QB
+# Where N is the record index
+setClass("savQualityFormatV6", contains="savFormat", 
+         prototype=prototype(filename="QMetricsOut.bin", 
+                             name=c("lane", "tile", "cycle"),
+                             type=c(rep("integer", 53)),
+                             lengths=c(2L, 2L, 2L, rep(4L, 50)),
+                             order=c("lane", "cycle", "tile"),
+                             accessor="qualityMetrics",
+                             version=6L,
+                             default=FALSE))
+
+
 #'Tile Metrics formatter
 #'
 #'Lane, tile, code, value.  Codes are:
@@ -269,6 +310,17 @@ setClass("savErrorFormat", contains="savFormat",
                              version=3L,
                              accessor="errorMetrics",
                              default=TRUE))
+                             
+#'Index Metrics formatter
+#~ setClass("savIndexFormat", contains="savFormat",
+#~          prototype=prototype(filename="IndexMetricsOut.bin",
+#~                              name=c("lane", "tile", "cycle", "errorrate", "nPerfect", paste("n", 1:4, "Error", sep="")),
+#~                              type=c(rep("integer", 3), "numeric", rep("integer", 5)),
+#~                              lengths=c(rep(2L, 3), rep(4L, 6)),
+#~                              order=c("lane", "cycle", "tile"),
+#~                              version=3L,
+#~                              accessor="indexMetrics",
+#~                              default=TRUE))
 
 setClass("savParser", slots=c(project="savProject", format="savFormat"))
 
