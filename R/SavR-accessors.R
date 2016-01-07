@@ -32,10 +32,15 @@ setMethod("correctedIntensities", signature(project="savProject"), function(proj
 
 #'@rdname qualityMetrics
 #'@aliases qualityMetrics,savProject-method
-setMethod("qualityMetrics", signature(project="savProject"), function(project) { 
-  tmp <- project@parsedData[["savQualityFormat"]]@data
-  if (is.null(tmp)) return(tmp)
-  return(tmp[,!colnames(tmp) %in% c("x", "y")]) 
+setMethod("qualityMetrics", signature(project="savProject"), function(project) {
+	tmp <- NULL
+	if("savQualityFormat" %in% names(project@parsedData)){
+		tmp <- project@parsedData[["savQualityFormat"]]@data
+	}else if("savQualityFormatV5" %in% names(project@parsedData)){
+		tmp <- project@parsedData[["savQualityFormatV5"]]@data
+	}
+	if (is.null(tmp)) return(tmp)
+	return(tmp[,!colnames(tmp) %in% c("x", "y")])
 })
 
 #'@rdname tileMetrics

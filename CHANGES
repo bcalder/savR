@@ -1,3 +1,7 @@
+1.7.6 2015-11-13
+
+    * fixed issue qualityMetrics()
+
 1.7.5 2015-07-28
 
     * fixed issue with error metrics parsing
