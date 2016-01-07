@@ -22,3 +22,4 @@ Suggests:
     Cairo,
     testthat
 biocViews: Sequencing
+RoxygenNote: 5.0.1
