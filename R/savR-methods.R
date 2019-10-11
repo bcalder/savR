@@ -835,7 +835,8 @@ parsesavIndexFormat <- function(project, format) {
     stop(paste("number of lanes in data file (", actnum, ") does not equal project configuration value (", 
                project@layout@lanecount, ") when parsing ", format@filename, sep=""))
   }
-  #data.f <- data.f[do.call(order, as.list(data.f[,format@order])),]
+  if (!is.null(format@order))
+    data.f <- data.f[do.call(order, as.list(data.f[,format@order])),]
 
   parsedData <- new("savData", header=list(version=vers, record_length=50), data=data.f, accessor=format@accessor)
   

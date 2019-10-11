@@ -241,7 +241,7 @@ setGeneric("errorMetrics", function(project) standardGeneric("errorMetrics"))
 #'
 #'
 #'@param project SAV project
-#'@return sorted data.frame of index metrics
+#'@return data.frame of index metrics sorted according to order in file (same as in IPA-6541)
 #'@export
 #'@rdname indexMetrics
 #'@examples
