@@ -368,6 +368,29 @@ setMethod("buildReports", signature(project="savProject", destination="character
 #@aliases buildReports,savProject,missing-method
 setMethod("buildReports", signature(project="savProject", destination="missing"), function(project) { buildReports(project, "./savR-reports")})
 
+#'@rdname indexFrequencies
+#@aliases indexFrequencies,savProject
+setMethod("indexFrequencies", signature(project="savProject"), function(project) {
+  iM <- indexMetrics(project)
+  if (is.null(iM))
+    return(NULL)
+  tM <- tileMetrics(project)
+  total_reads <- sum(tM[which(tM$code==102),4])
+  pf_reads <- sum(tM[which(tM$code==103),4])
+  iM$project[1] <- "test"
+  imStats <- aggregate(cluster ~ sample, iM, sum)
+  if (!all(is.na(iM$project))) {
+    prj <- aggregate(project ~ sample, iM, unique)
+    imStats <- merge(imStats, prj, by="sample", all.x=TRUE)
+  } else {
+    imStats$project <- NA
+  }
+  idx <- aggregate(index ~ sample, iM, unique)
+  out <- strcapture("(.*)-(.*)", idx$index, data.frame(I7 = character(), I5 = character()))
+  imStats <- cbind(imStats, out)
+  imStats$perc <- round(imStats$cluster/pf_reads*100, 4)
+  return(imStats[, c("sample", "project", "I7", "I5", "cluster", "perc")])
+})
 
 #Generic binary parser
 #

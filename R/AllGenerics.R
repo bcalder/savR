@@ -378,3 +378,27 @@ setGeneric("pfClusters", function(project, lane) standardGeneric("pfClusters"))
 #'clusterQualityGtN(fc, 1L, 25L, 30L)
 #'}
 setGeneric("clusterQualityGtN", function(project, lane, cycle, n) standardGeneric("clusterQualityGtN"))
+
+#'Get Index Frequency table
+#'
+#'Returns a data frame of index sequences and percentage of clusters passing the filter.
+#'
+#' \describe{
+#'  \item{\code{sample}:}{The sample ID assigned to an index in the sample sheet.}
+#'  \item{\code{project}:}{The project assigned to an index in the sample sheet.}
+#'  \item{\code{I7}:}{The sequence for the first index read (i7).}
+#'  \item{\code{I5}:}{The sequence for the second index read (i5).}
+#'  \item{\code{cluster}:}{Number of clusters passing filter that are assigned to the index.}
+#'  \item{\code{perc}:}{Percentage of clusters passing filter that are assigned to the index.}
+#' }
+#'
+#'@param project SAV project
+#'@export
+#'@docType methods
+#'@rdname indexFrequencies
+#'@examples
+#'\dontrun{
+#'example(savR)
+#'indexFrequencies(fc)
+#'}
+setGeneric("indexFrequencies", function(project) standardGeneric("indexFrequencies"))
