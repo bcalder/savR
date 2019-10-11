@@ -71,9 +71,12 @@ setMethod("errorMetrics", signature(project="savProject"), function(project) {
 #'@rdname indexMetrics
 #'@aliases indexMetrics,savProject-method
 setMethod("indexMetrics", signature(project="savProject"), function(project) {
-  tmp <- project@parsedData[["savIndexFormat"]]@data
-  if (is.null(tmp)) return(tmp)
-  return(tmp[,!colnames(tmp) %in% c("x", "y")]) 
+  tmp <- NULL
+  if (is.null(project@parsedData[["savIndexFormat"]]))
+    warning("Error: No index metrics available for this sequencing run (IndexMetricsOut.bin not found)")
+  else
+    tmp <- project@parsedData[["savIndexFormat"]]@data
+  return(tmp)
 })
 
 #'@rdname clusters
