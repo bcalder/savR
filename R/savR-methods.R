@@ -393,6 +393,24 @@ setMethod("indexFrequencies", signature(project="savProject"), function(project)
   return(imStats[, c("sample", "project", "I7", "I5", "cluster", "perc")])
 })
 
+#'@rdname plotIndexFrequencies
+#@aliases plotIndexFrequencies,savProject,logical-method
+setMethod("plotIndexFrequencies", signature(project="savProject", dataLabels="logical"), function(project, dataLabels=FALSE) {
+  imStats <- indexFrequencies(project)
+  p<-ggplot2::ggplot(data=imStats, ggplot2::aes(x=sample, y=perc, label = perc)) +
+    ggplot2::geom_bar(stat="identity", color="darkgreen", fill="chartreuse3") + ggplot2::xlab("Sample Name") + ggplot2::ylab("% Reads Identified (PF)") +
+    ggplot2::scale_y_continuous(labels = scales::number_format(accuracy = 1)) 
+  gridExtra::grid.arrange(p)
+  if (dataLabels) {
+    uf <- scales::unit_format(accuracy = 0.01, unit = "%")
+    p + ggplot2::geom_text(ggplot2::aes(label = uf(perc), y=perc), vjust = -.3, size = 10/ggplot2:::.pt)
+  }
+})
+
+#'@rdname plotIndexFrequencies
+#@aliases plotIndexFrequencies,savProject,missing-method
+setMethod("plotIndexFrequencies", signature(project="savProject", dataLabels="missing"), function(project) { plotIndexFrequencies(project, dataLabels=FALSE)})
+
 #Generic binary parser
 #
 #@param project SAV project

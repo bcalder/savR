@@ -402,3 +402,14 @@ setGeneric("clusterQualityGtN", function(project, lane, cycle, n) standardGeneri
 #'indexFrequencies(fc)
 #'}
 setGeneric("indexFrequencies", function(project) standardGeneric("indexFrequencies"))
+
+#'Plot Index Frequencies
+#'
+#'Generate a barplot of index frequencies based on percentage of clusters passing the filter.
+#'
+#'@param project SAV project
+#'@param dataLabels whether or not to label bars with data values, default FALSE
+#'@export
+#'@docType methods
+#'@rdname plotIndexFrequencies
+setGeneric("plotIndexFrequencies", function(project, dataLabels) standardGeneric("plotIndexFrequencies"))
