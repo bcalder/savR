@@ -373,11 +373,12 @@ setMethod("buildReports", signature(project="savProject", destination="missing")
 setMethod("indexFrequencies", signature(project="savProject"), function(project) {
   iM <- indexMetrics(project)
   if (is.null(iM))
-    return(NULL)
+    stop("Index data not available")
   tM <- tileMetrics(project)
+  if (is.null(tM))
+    stop("Tile data not available")
   total_reads <- sum(tM[which(tM$code==102),4])
   pf_reads <- sum(tM[which(tM$code==103),4])
-  iM$project[1] <- "test"
   imStats <- aggregate(cluster ~ sample, iM, sum)
   if (!all(is.na(iM$project))) {
     prj <- aggregate(project ~ sample, iM, unique)
