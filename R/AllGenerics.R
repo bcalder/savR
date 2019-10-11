@@ -225,6 +225,30 @@ setGeneric("extractionMetrics", function(project) standardGeneric("extractionMet
 #'colnames(extractionMetrics(fc))
 setGeneric("errorMetrics", function(project) standardGeneric("errorMetrics"))
 
+#'Get Index Metrics
+#'
+#'Lane, tile, read, index, cluster, sample, project
+#'
+#' \describe{
+#'  \item{\code{lane}:}{Lane number}
+#'  \item{\code{tile}:}{Tile ID}
+#'  \item{\code{read}:}{Read number}
+#'  \item{\code{index}:}{Index name}
+#'  \item{\code{cluster}:}{Index cluster count}
+#'  \item{\code{sample}:}{Sample name}
+#'  \item{\code{project}:}{Project name}
+#' }
+#'
+#'
+#'@param project SAV project
+#'@return sorted data.frame of index metrics
+#'@export
+#'@rdname indexMetrics
+#'@examples
+#'example(savR)
+#'colnames(indexMetrics(fc))
+setGeneric("indexMetrics", function(project) standardGeneric("indexMetrics"))
+
 #'Plot flowcell intensity by base and cycle
 #' 
 #'Draws a representation of a flowcell, showing the average corrected called intensity values.

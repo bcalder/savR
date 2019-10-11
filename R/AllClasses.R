@@ -312,15 +312,48 @@ setClass("savErrorFormat", contains="savFormat",
                              default=TRUE))
                              
 #'Index Metrics formatter
-#~ setClass("savIndexFormat", contains="savFormat",
-#~          prototype=prototype(filename="IndexMetricsOut.bin",
-#~                              name=c("lane", "tile", "cycle", "errorrate", "nPerfect", paste("n", 1:4, "Error", sep="")),
-#~                              type=c(rep("integer", 3), "numeric", rep("integer", 5)),
-#~                              lengths=c(rep(2L, 3), rep(4L, 6)),
-#~                              order=c("lane", "cycle", "tile"),
-#~                              version=3L,
-#~                              accessor="indexMetrics",
-#~                              default=TRUE))
+#'
+#'Lane, tile, read, index, cluster, sample, project
+#'
+#'@section Slots:
+#'\describe{
+#'\item{\code{name}:}{vector of column names}
+#'\item{\code{type}:}{vector of data types of elements}
+#'\item{\code{lengths}:}{vector of byte lengths for each element}
+#'\item{\code{order}:}{vector of column names for sorting}
+#'\item{\code{version}:}{integer version number}
+#'}
+#'
+#
+# Format information found at https://github.com/Illumina/interop/blob/master/src/interop/model/metrics/index_metric.cpp
+# Index Metrics (IndexMetricsOut.bin)
+# Format:
+# byte 0: file version number (1 or 2)
+#
+# n records:
+#
+# base_read_metric
+# 2 bytes: lane number  (uint16)
+# 2/4 bytes: tile number  (v1: uint16, v2: uint32)
+# 2 bytes: read number (uint16)
+#
+# index_metric
+# 2 bytes: index name length (indexNameLength) (uint16)
+# indexNameLength bytes: index name
+# 4/8 bytes: index cluster count (v1: uint32, v2: uint64)
+# 2 bytes: sample name length (sampleNameLength) (uint16)
+# sampleNameLength bytes: sample name
+# 2 bytes: project name length (projectNameLength) (uint16)
+# projectNameLength bytes: project name
+setClass("savIndexFormat", contains="savFormat",
+        prototype=prototype(filename="IndexMetricsOut.bin",
+                            name=c("lane", "tile", "read", "index", "cluster", "sample", "project"),
+                            type=c(rep("integer", 3), "character", "integer", "character", "character"),
+                            lengths=NULL,
+                            order=c("lane", "index", "cluster"),
+                            version=1L,
+                            accessor="indexMetrics",
+                            default=FALSE))
 
 setClass("savParser", slots=c(project="savProject", format="savFormat"))
 

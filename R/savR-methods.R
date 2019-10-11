@@ -510,7 +510,7 @@ init <- function(project) {
 					"savQualityFormatV5", 
 					"savQualityFormatV6", 
 					"savTileFormat", 
-#~					"savIndexFormat", 
+					"savIndexFormat", 
 					"savExtractionFormat",
 					"savErrorFormat")
 	
@@ -556,7 +556,7 @@ init <- function(project) {
 			
 			if (!is.null(data)) {
 				# don't add position data to tiles
-				if (class(format)[1] != "savTileFormat" )
+				if (class(format)[1] != "savTileFormat" && class(format)[1] != "savIndexFormat" )
 					data <- addPosition(data)
 				# removed unparsed date columns
 				if (class(format)[1] == "savExtractionFormat")
@@ -756,6 +756,91 @@ parsesavQualityFormatV6 <- function(project, format) {
 	
 	return(parsedData)
 	
+}
+
+# Format information found at https://github.com/Illumina/interop/blob/master/src/interop/model/metrics/index_metric.cpp
+# Index Metrics (IndexMetricsOut.bin)
+# Format:
+# byte 0: file version number (1 or 2)
+#
+# n records:
+#
+# base_read_metric
+# 2 bytes: lane number  (uint16)
+# 2/4 bytes: tile number  (v1: uint16, v2: uint32)
+# 2 bytes: read number (uint16)
+#
+# index_metric
+# 2 bytes: index name length (indexNameLength) (uint16)
+# indexNameLength bytes: index name
+# 4/8 bytes: index cluster count (v1: uint32, v2: uint64)
+# 2 bytes: sample name length (sampleNameLength) (uint16)
+# sampleNameLength bytes: sample name
+# 2 bytes: project name length (projectNameLength) (uint16)
+# projectNameLength bytes: project name
+parsesavIndexFormat <- function(project, format) {
+  path <- getInterOpFilePath(project,format)
+  fh <- file(path, "rb")
+  vers <- readBin(fh, what="integer", endian="little", size=1, signed=F)
+
+  bs <- 50 # block size for vector expansion
+  ts <- bs # total size of vector
+  data <- vector("list", bs)
+  r <- 1
+  while (!isIncomplete(fh)) {
+    if (r > ts) {
+      data <- c(data, vector("list", bs))
+      ts <- ts + bs
+    }
+    
+    if (length(laneNum <- readBin(fh, what="integer", endian="little", size=2L, signed=F)) == 0)
+      break;
+    if (vers == 1)
+      tileNum <- readBin(fh, what="integer", endian="little", size=2L, signed=F)
+    else
+      tileNum <- readBin(fh, what="integer", endian="little", size=4L)
+    readNum <- readBin(fh, what="integer", endian="little", size=2L, signed=F)
+    slen <- readBin(fh, what="integer", endian="little", size=2L, signed=F)
+    indexName <- readChar(fh, c(slen))
+    if (vers == 1)
+      indexCount <- readBin(fh, what="integer", endian="little", size=4L)
+    else
+      if(.Machine$sizeof.long == 8 || .Machine$sizeof.longlong == 8)
+        indexCount <- readBin(fh, what="integer", endian="little", size=8L)
+      else
+        indexCount <- readBin(fh, what="numeric", endian="little", size=8L)
+    slen <- readBin(fh, what="integer", endian="little", size=2L, signed=F)
+    sampleName <- readChar(fh, c(slen))
+    slen <- readBin(fh, what="integer", endian="little", size=2L, signed=F)
+    if (slen > 0)
+      projectName <- readChar(fh, c(slen))
+    else
+      projectName <- NA
+    
+    # keep different data types
+    dat <- c(unname(as.list(c(laneNum, tileNum, readNum))), indexName, indexCount, sampleName, projectName)
+    data[[r]] <- dat
+    r <- r + 1
+  }
+  
+  close(fh)
+  
+  # remove NULL rows
+  data.f <- as.data.frame(do.call("rbind", data[!unlist(lapply(data, is.null))]), stringsAsFactors = FALSE)
+  # unlist the individual columns to keep different data types
+  data.f <- data.frame(lapply(data.f, function(x) unlist(x)), stringsAsFactors = FALSE)
+  colnames(data.f) <- format@name
+  actnum <- length(unique(data.f[,"lane"]))
+  if (actnum != project@layout@lanecount) {
+    stop(paste("number of lanes in data file (", actnum, ") does not equal project configuration value (", 
+               project@layout@lanecount, ") when parsing ", format@filename, sep=""))
+  }
+  #data.f <- data.f[do.call(order, as.list(data.f[,format@order])),]
+
+  parsedData <- new("savData", header=list(version=vers, record_length=50), data=data.f, accessor=format@accessor)
+  
+  return(parsedData)
+  
 }
 
 #'@rdname clusterQualityGtN

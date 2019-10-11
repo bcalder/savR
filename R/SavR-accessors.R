@@ -68,6 +68,14 @@ setMethod("errorMetrics", signature(project="savProject"), function(project) {
   return(tmp[,!colnames(tmp) %in% c("x", "y")])
 })
 
+#'@rdname indexMetrics
+#'@aliases indexMetrics,savProject-method
+setMethod("indexMetrics", signature(project="savProject"), function(project) {
+  tmp <- project@parsedData[["savIndexFormat"]]@data
+  if (is.null(tmp)) return(tmp)
+  return(tmp[,!colnames(tmp) %in% c("x", "y")]) 
+})
+
 #'@rdname clusters
 #@aliases clusters,savProject,integer
 setMethod("clusters", signature(project="savProject", lane="integer"), function(project, lane=1L) {
