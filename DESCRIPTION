@@ -1,8 +1,8 @@
 Package: savR
 Type: Package
 Title: Parse and analyze Illumina SAV files
-Version: 1.8.1
-Date: 2016-01-06
+Version: 1.8.2
+Date: 2025-03-24
 Author: R. Brent Calder
 Maintainer: R. Brent Calder <robert.calder+savr@mssm.edu>
 Description: Parse Illumina Sequence Analysis Viewer (SAV) files,
@@ -10,6 +10,7 @@ Description: Parse Illumina Sequence Analysis Viewer (SAV) files,
 License: AGPL-3
 URL: https://github.com/bcalder/savR
 BugReports: https://github.com/bcalder/savR/issues
+Encoding: UTF-8
 Depends:
     ggplot2
 Imports:
@@ -22,4 +23,4 @@ Suggests:
     Cairo,
     testthat
 biocViews: Sequencing
-RoxygenNote: 5.0.1
+RoxygenNote: 7.3.2

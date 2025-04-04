@@ -68,6 +68,17 @@ setMethod("errorMetrics", signature(project="savProject"), function(project) {
   return(tmp[,!colnames(tmp) %in% c("x", "y")])
 })
 
+#'@rdname indexMetrics
+#'@aliases indexMetrics,savProject-method
+setMethod("indexMetrics", signature(project="savProject"), function(project) {
+  tmp <- NULL
+  if (is.null(project@parsedData[["savIndexFormat"]]))
+    warning("Error: No index metrics available for this sequencing run (IndexMetricsOut.bin not found)")
+  else
+    tmp <- project@parsedData[["savIndexFormat"]]@data
+  return(tmp)
+})
+
 #'@rdname clusters
 #@aliases clusters,savProject,integer
 setMethod("clusters", signature(project="savProject", lane="integer"), function(project, lane=1L) {

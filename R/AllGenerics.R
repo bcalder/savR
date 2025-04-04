@@ -225,6 +225,30 @@ setGeneric("extractionMetrics", function(project) standardGeneric("extractionMet
 #'colnames(extractionMetrics(fc))
 setGeneric("errorMetrics", function(project) standardGeneric("errorMetrics"))
 
+#'Get Index Metrics
+#'
+#'Lane, tile, read, index, cluster, sample, project
+#'
+#' \describe{
+#'  \item{\code{lane}:}{Lane number}
+#'  \item{\code{tile}:}{Tile ID}
+#'  \item{\code{read}:}{Read number}
+#'  \item{\code{index}:}{Index name}
+#'  \item{\code{cluster}:}{Index cluster count}
+#'  \item{\code{sample}:}{Sample name}
+#'  \item{\code{project}:}{Project name}
+#' }
+#'
+#'
+#'@param project SAV project
+#'@return data.frame of index metrics sorted according to order in file (same as in IPA-6541)
+#'@export
+#'@rdname indexMetrics
+#'@examples
+#'example(savR)
+#'colnames(indexMetrics(fc))
+setGeneric("indexMetrics", function(project) standardGeneric("indexMetrics"))
+
 #'Plot flowcell intensity by base and cycle
 #' 
 #'Draws a representation of a flowcell, showing the average corrected called intensity values.
@@ -354,3 +378,38 @@ setGeneric("pfClusters", function(project, lane) standardGeneric("pfClusters"))
 #'clusterQualityGtN(fc, 1L, 25L, 30L)
 #'}
 setGeneric("clusterQualityGtN", function(project, lane, cycle, n) standardGeneric("clusterQualityGtN"))
+
+#'Get Index Frequency table
+#'
+#'Returns a data frame of index sequences and percentage of clusters passing the filter.
+#'
+#' \describe{
+#'  \item{\code{sample}:}{The sample ID assigned to an index in the sample sheet.}
+#'  \item{\code{project}:}{The project assigned to an index in the sample sheet.}
+#'  \item{\code{I7}:}{The sequence for the first index read (i7).}
+#'  \item{\code{I5}:}{The sequence for the second index read (i5).}
+#'  \item{\code{cluster}:}{Number of clusters passing filter that are assigned to the index.}
+#'  \item{\code{perc}:}{Percentage of clusters passing filter that are assigned to the index.}
+#' }
+#'
+#'@param project SAV project
+#'@export
+#'@docType methods
+#'@rdname indexFrequencies
+#'@examples
+#'\dontrun{
+#'example(savR)
+#'indexFrequencies(fc)
+#'}
+setGeneric("indexFrequencies", function(project) standardGeneric("indexFrequencies"))
+
+#'Plot Index Frequencies
+#'
+#'Generate a barplot of index frequencies based on percentage of clusters passing the filter.
+#'
+#'@param project SAV project
+#'@param dataLabels whether or not to label bars with data values, default FALSE
+#'@export
+#'@docType methods
+#'@rdname plotIndexFrequencies
+setGeneric("plotIndexFrequencies", function(project, dataLabels) standardGeneric("plotIndexFrequencies"))

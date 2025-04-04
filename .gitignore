@@ -1,6 +1,7 @@
 .Rproj.user
 .Rhistory
 .RData
-#man
+man/
 savR.Rproj
 *.DS_Store
+savR-reports

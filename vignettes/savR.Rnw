@@ -184,6 +184,15 @@ The extraction metrics (\texttt{ExtractionMetricsOut.bin}) file contains per-lan
 head(extractionMetrics(fc), n=1)
 @
 
+\subsection*{Index Metrics}
+
+The index metrics (\texttt{IndexMetricsOut.bin}) file contains per-lane/tile/index information about number of clusters per 
+sample and is available only for indexed runs.
+
+<<example2>>=
+head(indexMetrics(fc), n=4)
+@
+
 \section*{Coda}
 
 There is a convenience function (\texttt{buildReports}), which partially reconstructs the Illumina reports folder

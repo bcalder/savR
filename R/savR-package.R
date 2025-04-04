@@ -13,7 +13,6 @@
 #'files, access data, and generate QC plots.
 #' 
 #'@name savR-package
-#'@docType package
 #'@import methods ggplot2 reshape2 gridExtra XML
 #'@title Parse and analyze Illumina SAV files
 #'@author R. Brent Calder \email{brent.calder@@einstein.yu.edu}
@@ -21,4 +20,4 @@
 #'@keywords package
 #' 
 NULL
-
+"_PACKAGE"
